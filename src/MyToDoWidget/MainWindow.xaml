@@ -1,0 +1,148 @@
+<Window x:Class="MyToDoWidget.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:controls="clr-namespace:MyToDoWidget.Controls"
+ Title="MyToDo" Width="390" Height="530" MinWidth="310" MinHeight="280" MaxWidth="2000" MaxHeight="2000"
+ WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="True" Background="Transparent"
+ ShowInTaskbar="False" Icon="Assets/app.ico"
+ Loaded="Window_Loaded" Closing="Window_Closing" Closed="Window_Closed" PreviewKeyDown="Window_PreviewKeyDown">
+ <Window.Resources>
+  <Style x:Key="ResizeHandle" TargetType="Thumb">
+   <Setter Property="Focusable" Value="False"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Thumb"><Border Background="Transparent"/></ControlTemplate></Setter.Value></Setter>
+   <EventSetter Event="DragStarted" Handler="Resize_Started"/>
+   <EventSetter Event="DragDelta" Handler="Resize_Delta"/>
+   <EventSetter Event="DragCompleted" Handler="Resize_Completed"/>
+  </Style>
+  <Style x:Key="MemoScrollBar" TargetType="ScrollBar">
+   <Setter Property="Width" Value="10"/>
+   <Setter Property="MinWidth" Value="10"/>
+   <Setter Property="Template"><Setter.Value>
+    <ControlTemplate TargetType="ScrollBar">
+     <Grid Background="Transparent" Margin="2,0">
+      <Track x:Name="PART_Track" Orientation="Vertical" IsDirectionReversed="True"
+        Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
+        ViewportSize="{TemplateBinding ViewportSize}" Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+       <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template></RepeatButton></Track.DecreaseRepeatButton>
+       <Track.Thumb><Thumb MinHeight="24"><Thumb.Template><ControlTemplate TargetType="Thumb"><Border CornerRadius="3" Background="{DynamicResource MutedBrush}" Opacity="0.65"/></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+       <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template></RepeatButton></Track.IncreaseRepeatButton>
+      </Track>
+     </Grid>
+    </ControlTemplate>
+   </Setter.Value></Setter>
+  </Style>
+
+  <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+   <Setter Property="Width" Value="22"/><Setter Property="Height" Value="22"/>
+   <Setter Property="MinHeight" Value="22"/><Setter Property="Padding" Value="3"/>
+   <Setter Property="Margin" Value="1,0"/><Setter Property="Background" Value="Transparent"/>
+   <Setter Property="BorderBrush" Value="Transparent"/><Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+  </Style>
+ </Window.Resources>
+ <Grid Background="Transparent">
+  <Border x:Name="Surface" CornerRadius="14" BorderThickness="1">
+   <Grid>
+    <Border x:Name="GlassReflection" CornerRadius="13" IsHitTestVisible="False">
+     <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0.8,1">
+      <GradientStop Color="#50FFFFFF" Offset="0"/><GradientStop Color="#0CFFFFFF" Offset="0.35"/><GradientStop Color="#00FFFFFF" Offset="1"/>
+     </LinearGradientBrush></Border.Background>
+    </Border>
+    <Grid Margin="12,8">
+     <Grid.RowDefinitions><RowDefinition Height="24"/><RowDefinition Height="*"/><RowDefinition Height="20"/></Grid.RowDefinitions>
+     <Border Background="{DynamicResource ChromeBrush}" CornerRadius="6" Padding="6,0" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+      <Grid>
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <TextBlock Text="MyToDo" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" ToolTip="끌어서 이동"/>
+       <StackPanel Grid.Column="1" Orientation="Horizontal">
+        <Button x:Name="RefreshButton" Style="{StaticResource IconButton}" ToolTip="새로고침 (F5)" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="새로고침" Click="Refresh_Click">
+         <Path Data="M15,6 A6,6 0 1 0 15,11 M15,2 L15,6 L11,6" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+        </Button>
+        <Button x:Name="SheetsButton" Style="{StaticResource IconButton}" ToolTip="구글 시트 목록 열기" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="구글 시트" Click="Sheets_Click">
+         <Path Data="M3,1 L11,1 L15,5 L15,17 L3,17 Z M11,1 L11,5 L15,5 M6,9 L12,9 M6,12 L12,12 M9,7 L9,14" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+        </Button>
+        <Button x:Name="SettingsButton" Style="{StaticResource IconButton}" ToolTip="설정" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="설정" Click="Settings_Click">
+         <Path Data="M3,4 L15,4 M3,9 L15,9 M3,14 L15,14 M6,1 L6,7 M12,6 L12,12 M7,11 L7,17" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+        </Button>
+        <Button x:Name="RollUpButton" Style="{StaticResource IconButton}" ToolTip="롤업 · 말풍선 접기" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="말풍선 접기" Click="RollUp_Click">
+         <Path Data="M4,3 L14,3 M4,12 L9,7 L14,12" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+        </Button>
+        <Button x:Name="RollDownButton" Style="{StaticResource IconButton}" ToolTip="롤다운 · 말풍선 펼치기" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="말풍선 펼치기" Click="RollDown_Click">
+         <Path Data="M4,15 L14,15 M4,6 L9,11 L14,6" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+        </Button>
+        <Button x:Name="HideButton" Style="{StaticResource IconButton}" ToolTip="최소화 · 트레이로 숨기기" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="트레이로 숨기기" Click="Hide_Click">
+         <Path Data="M4,12 L14,12" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+        </Button>
+       </StackPanel>
+      </Grid>
+     </Border>
+     <Grid x:Name="NoteArea" Grid.Row="1" Margin="0,8" ClipToBounds="True">
+      <ListBox x:Name="NoteList" Background="Transparent" BorderThickness="0" Padding="0" HorizontalContentAlignment="Stretch"
+        ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
+        ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="VerticalOnly"
+        VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+        VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.CacheLength="1"
+        PreviewMouseWheel="NoteList_MouseWheel" PreviewMouseRightButtonDown="NoteList_RightClick"
+        MouseDoubleClick="NoteList_DoubleClick" AutomationProperties.Name="메모 말풍선 목록">
+       <ListBox.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource MemoScrollBar}"/></ListBox.Resources>
+       <ListBox.ContextMenu><ContextMenu><MenuItem Header="선택한 메모 복사" Click="Copy_Click"/></ContextMenu></ListBox.ContextMenu>
+       <ListBox.ItemContainerStyle>
+        <Style TargetType="ListBoxItem">
+         <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="0"/>
+         <Setter Property="Margin" Value="0,1,3,9"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+         <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
+          <Grid Background="Transparent">
+           <controls:SpeechBubble x:Name="Bubble" HorizontalAlignment="{DynamicResource BubbleAlignment}"
+             Shape="{DynamicResource MemoShape}" TailSide="{DynamicResource MemoTail}"
+             Fill="{DynamicResource BubbleBrush}" Stroke="{DynamicResource BubbleEdgeBrush}"
+             ToolTip="두 번 클릭하면 구글 시트 목록을 엽니다.">
+            <ContentPresenter/>
+           </controls:SpeechBubble>
+          </Grid>
+          <ControlTemplate.Triggers>
+           <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bubble" Property="Stroke" Value="{DynamicResource MutedBrush}"/></Trigger>
+           <Trigger Property="IsSelected" Value="True"><Setter TargetName="Bubble" Property="Stroke" Value="{DynamicResource AccentBrush}"/></Trigger>
+           <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Bubble" Property="Stroke" Value="{DynamicResource AccentBrush}"/></Trigger>
+          </ControlTemplate.Triggers>
+         </ControlTemplate></Setter.Value></Setter>
+        </Style>
+       </ListBox.ItemContainerStyle>
+       <ListBox.ItemTemplate><DataTemplate>
+        <TextBlock Text="{Binding}" TextWrapping="Wrap"
+         Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBox}}"
+         FontFamily="{Binding FontFamily, RelativeSource={RelativeSource AncestorType=ListBox}}"
+         FontSize="{Binding FontSize, RelativeSource={RelativeSource AncestorType=ListBox}}"
+         FontWeight="{Binding FontWeight, RelativeSource={RelativeSource AncestorType=ListBox}}"
+         FontStyle="{Binding FontStyle, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+       </DataTemplate></ListBox.ItemTemplate>
+      </ListBox>
+      <Border x:Name="EmptyPanel" VerticalAlignment="Center" Background="{DynamicResource ChromeBrush}" CornerRadius="12" Padding="16">
+       <StackPanel>
+        <TextBlock x:Name="EmptyTitle" Text="메모를 연결해 주세요" FontSize="17" FontWeight="SemiBold" TextAlignment="Center"/>
+        <TextBlock x:Name="EmptyText" Foreground="{DynamicResource MutedBrush}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,16"/>
+        <Button x:Name="EmptySettingsButton" Content="주소 등록" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Center" Click="Settings_Click"/>
+       </StackPanel>
+      </Border>
+     </Grid>
+     <Border Grid.Row="2" Background="{DynamicResource ChromeBrush}" CornerRadius="5" Padding="6,0">
+      <TextBlock x:Name="TimeText" FontSize="10" Foreground="{DynamicResource MutedBrush}"
+        VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+        ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+     </Border>
+    </Grid>
+   </Grid>
+  </Border>
+  <Grid x:Name="ResizeHandles">
+   <Thumb Tag="W" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Left" Width="6" Margin="0,12" Cursor="SizeWE"/>
+   <Thumb Tag="E" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Right" Width="6" Margin="0,12" Cursor="SizeWE"/>
+   <Thumb Tag="N" Style="{StaticResource ResizeHandle}" VerticalAlignment="Top" Height="6" Margin="12,0" Cursor="SizeNS"/>
+   <Thumb Tag="S" Style="{StaticResource ResizeHandle}" VerticalAlignment="Bottom" Height="6" Margin="12,0" Cursor="SizeNS"/>
+   <Thumb Tag="NW" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="12" Height="12" Cursor="SizeNWSE"/>
+   <Thumb Tag="NE" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Right" VerticalAlignment="Top" Width="12" Height="12" Cursor="SizeNESW"/>
+   <Thumb Tag="SW" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="12" Height="12" Cursor="SizeNESW"/>
+   <Thumb Tag="SE" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="14" Height="14" Cursor="SizeNWSE" ToolTip="끌어서 크기 조절">
+    <Thumb.Template><ControlTemplate TargetType="Thumb"><Grid Background="Transparent"><Path Data="M4,11 L11,4 M8,11 L11,8" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1"/></Grid></ControlTemplate></Thumb.Template>
+   </Thumb>
+  </Grid>
+ </Grid>
+</Window>
