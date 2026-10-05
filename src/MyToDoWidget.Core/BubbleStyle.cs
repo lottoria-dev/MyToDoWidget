@@ -2,6 +2,8 @@ namespace MyToDoWidget.Core;
 
 public enum BubbleTail { Left, Right, None }
 public enum BubbleShape { Rounded, Square, Droplet, Capsule, CutCorner }
+public enum BubbleAlign { Left, Center, Right }
+public enum BubbleWidthMode { Content, Widget }
 
 public static class MemoStyle
 {

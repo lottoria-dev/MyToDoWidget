@@ -4,7 +4,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
-    <Version>0.3.0</Version>
-    <Authors>mathsup</Authors>
+    <Version>1.1.2</Version>
+    <!-- Production by default; opt into isolated test settings with -p:MyToDoTestBuild=true. -->
+    <MyToDoTestBuild Condition="'$(MyToDoTestBuild)' == ''">false</MyToDoTestBuild>
+    <DefineConstants Condition="'$(MyToDoTestBuild)' == 'true'">$(DefineConstants);MYTODO_TEST_BUILD</DefineConstants>
+    <Authors>MathTime</Authors>
+    <Company>MathTime</Company>
+    <Product>MyToDo</Product>
+    <Copyright>Copyright © 2026 MathTime</Copyright>
   </PropertyGroup>
 </Project>

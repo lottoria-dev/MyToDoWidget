@@ -1,0 +1,664 @@
+<!-- MathTime SPA content fragment; place beside dday.html.
+     GitHub publishing configuration (on #mytodo-page):
+       data-repository-url: real repository URL, no trailing slash
+       data-release-tag: the exact tag used on GitHub (default 1.1.2)
+       data-release-ready: true for this release; upload the ZIP and .sha256 BEFORE deploying this page
+     Tag 1.1.2 has no v prefix. Set release-ready=false for a pre-upload preview. -->
+<script src="/js/redirect.js" data-app-root="/" data-page-key="mytodo"></script>
+<style>
+    #mytodo-page {
+        --mytodo-text: #172033;
+        --mytodo-muted: #5f6b7a;
+        --mytodo-border: #d8dee8;
+        --mytodo-border-strong: #aeb8c8;
+        --mytodo-soft: #f6f8fb;
+        --mytodo-accent: #087AA5;
+        --mytodo-accent-dark: #056486;
+        --mytodo-accent-soft: #EBF8FE;
+        --mytodo-warn: #8a4b08;
+        --mytodo-warn-soft: #fff8e8;
+        color: var(--mytodo-text);
+        line-height: 1.65;
+    }
+
+    #mytodo-page,
+    #mytodo-page * {
+        box-sizing: border-box;
+    }
+
+    #mytodo-page a {
+        color: var(--mytodo-accent);
+    }
+
+    #mytodo-page h2,
+    #mytodo-page h3,
+    #mytodo-page p {
+        margin-top: 0;
+    }
+
+    #mytodo-page .mytodo-header {
+        padding-bottom: 22px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--mytodo-border);
+    }
+
+    #mytodo-page .mytodo-version {
+        display: inline-block;
+        margin-bottom: 8px;
+        padding: 3px 8px;
+        border: 1px solid var(--mytodo-border-strong);
+        background: var(--mytodo-soft);
+        color: #39465b;
+        font-size: 0.78rem;
+        font-weight: 800;
+    }
+
+    #mytodo-page .mytodo-header h2 {
+        margin-bottom: 7px;
+        font-size: 1.75rem;
+        line-height: 1.3;
+    }
+
+    #mytodo-page .mytodo-header p {
+        margin-bottom: 0;
+        color: var(--mytodo-muted);
+    }
+
+    #mytodo-page .mytodo-download-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 22px;
+        align-items: center;
+        padding: 18px;
+        margin-bottom: 24px;
+        border: 1px solid var(--mytodo-border-strong);
+        background: #fff;
+    }
+
+    #mytodo-page .mytodo-download-title {
+        margin-bottom: 5px;
+        font-size: 1.08rem;
+        font-weight: 800;
+    }
+
+    #mytodo-page .mytodo-download-meta {
+        margin-bottom: 10px;
+        color: var(--mytodo-muted);
+        font-size: 0.9rem;
+    }
+
+    #mytodo-page .mytodo-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    #mytodo-page .mytodo-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 8px 13px;
+        border: 1px solid var(--mytodo-border-strong);
+        background: #fff;
+        color: var(--mytodo-text);
+        font: inherit;
+        font-size: 0.88rem;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    #mytodo-page .mytodo-button:hover {
+        background: var(--mytodo-soft);
+    }
+
+    #mytodo-page .mytodo-button-primary {
+        border-color: var(--mytodo-accent);
+        background: var(--mytodo-accent);
+        color: #fff;
+    }
+
+    #mytodo-page .mytodo-button-primary:hover {
+        background: var(--mytodo-accent-dark);
+    }
+
+    #mytodo-page .mytodo-download-side {
+        min-width: 155px;
+        text-align: right;
+    }
+
+    #mytodo-page .mytodo-file-name {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 0.83rem;
+        color: #39465b;
+    }
+
+    #mytodo-page .mytodo-section {
+        padding: 24px 0;
+        border-bottom: 1px solid var(--mytodo-border);
+    }
+
+    #mytodo-page .mytodo-section:last-of-type {
+        border-bottom: 0;
+    }
+
+    #mytodo-page .mytodo-section-heading {
+        display: flex;
+        align-items: baseline;
+        gap: 9px;
+        margin-bottom: 14px;
+    }
+
+    #mytodo-page .mytodo-section-number {
+        color: var(--mytodo-accent);
+        font-size: 0.86rem;
+        font-weight: 900;
+    }
+
+    #mytodo-page .mytodo-section h3 {
+        margin-bottom: 0;
+        font-size: 1.18rem;
+    }
+
+    #mytodo-page .mytodo-lead {
+        margin: -5px 0 16px;
+        color: var(--mytodo-muted);
+        font-size: 0.92rem;
+    }
+
+    #mytodo-page .mytodo-note {
+        padding: 13px 15px;
+        border-left: 4px solid var(--mytodo-accent);
+        background: var(--mytodo-accent-soft);
+        color: #34445c;
+        font-size: 0.9rem;
+    }
+
+    #mytodo-page .mytodo-note p:last-child {
+        margin-bottom: 0;
+    }
+
+    #mytodo-page .mytodo-note-warning {
+        border-left-color: #c47212;
+        background: var(--mytodo-warn-soft);
+        color: var(--mytodo-warn);
+    }
+
+    #mytodo-page .mytodo-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    #mytodo-page .mytodo-info-box {
+        padding: 15px;
+        border: 1px solid var(--mytodo-border);
+        background: #fff;
+    }
+
+    #mytodo-page .mytodo-info-box h4 {
+        margin: 0 0 7px;
+        font-size: 0.98rem;
+    }
+
+    #mytodo-page .mytodo-info-box p {
+        margin-bottom: 0;
+        color: var(--mytodo-muted);
+        font-size: 0.9rem;
+    }
+
+    #mytodo-page .mytodo-list,
+    #mytodo-page .mytodo-steps {
+        margin: 0;
+        padding-left: 1.35rem;
+    }
+
+    #mytodo-page .mytodo-list li,
+    #mytodo-page .mytodo-steps li {
+        margin-bottom: 8px;
+    }
+
+    #mytodo-page .mytodo-list li:last-child,
+    #mytodo-page .mytodo-steps li:last-child {
+        margin-bottom: 0;
+    }
+
+    #mytodo-page code {
+        padding: 1px 4px;
+        background: var(--mytodo-soft);
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 0.88em;
+    }
+
+    #mytodo-page .mytodo-release {
+        border: 1px solid var(--mytodo-border);
+    }
+
+    #mytodo-page .mytodo-release-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--mytodo-border);
+        background: var(--mytodo-soft);
+    }
+
+    #mytodo-page .mytodo-release-header strong {
+        font-size: 0.95rem;
+    }
+
+    #mytodo-page .mytodo-release-date {
+        color: var(--mytodo-muted);
+        font-size: 0.82rem;
+    }
+
+    #mytodo-page .mytodo-release-body {
+        padding: 14px;
+    }
+
+    #mytodo-page .mytodo-table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--mytodo-border);
+    }
+
+    #mytodo-page table {
+        width: 100%;
+        min-width: 620px;
+        border-collapse: collapse;
+    }
+
+    #mytodo-page th,
+    #mytodo-page td {
+        padding: 11px 13px;
+        border-bottom: 1px solid var(--mytodo-border);
+        text-align: left;
+        vertical-align: top;
+        font-size: 0.9rem;
+    }
+
+    #mytodo-page th {
+        background: var(--mytodo-soft);
+        font-weight: 800;
+    }
+
+    #mytodo-page tr:last-child td {
+        border-bottom: 0;
+    }
+
+    #mytodo-page .mytodo-hash {
+        margin-top: 12px;
+        padding: 11px 12px;
+        border: 1px solid var(--mytodo-border);
+        background: #fbfcfe;
+    }
+
+    #mytodo-page .mytodo-hash-label {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--mytodo-muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+    }
+
+    #mytodo-page .mytodo-hash-row {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    #mytodo-page .mytodo-hash code {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        background: transparent;
+        padding: 0;
+        color: #26344a;
+        font-size: 0.78rem;
+    }
+
+    #mytodo-page .mytodo-copy {
+        flex: 0 0 auto;
+        min-height: 30px;
+        padding: 4px 9px;
+        border: 1px solid var(--mytodo-border-strong);
+        background: #fff;
+        color: var(--mytodo-text);
+        font: inherit;
+        font-size: 0.76rem;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    #mytodo-page .mytodo-copy:hover {
+        background: var(--mytodo-accent-soft);
+        border-color: var(--mytodo-accent);
+    }
+
+    #mytodo-page .mytodo-footer {
+        margin-top: 26px;
+        padding-top: 18px;
+        border-top: 1px solid var(--mytodo-border);
+        color: var(--mytodo-muted);
+        font-size: 0.84rem;
+    }
+
+    #mytodo-page .mytodo-footer p {
+        margin-bottom: 5px;
+    }
+
+    #mytodo-page .mytodo-toast {
+        position: fixed;
+        left: 50%;
+        bottom: 24px;
+        z-index: 10000;
+        display: none;
+        transform: translateX(-50%);
+        padding: 9px 14px;
+        background: #172033;
+        color: #fff;
+        font-size: 0.84rem;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.18);
+    }
+
+    #mytodo-page .mytodo-toast.is-visible {
+        display: block;
+    }
+
+    @media (max-width: 720px) {
+        #mytodo-page .mytodo-download-panel {
+            grid-template-columns: 1fr;
+        }
+
+        #mytodo-page .mytodo-download-side {
+            text-align: left;
+        }
+
+        #mytodo-page .mytodo-grid {
+            grid-template-columns: 1fr;
+        }
+
+        #mytodo-page .mytodo-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        #mytodo-page .mytodo-button {
+            width: 100%;
+        }
+
+        #mytodo-page .mytodo-release-header {
+            display: block;
+        }
+
+        #mytodo-page .mytodo-release-date {
+            display: block;
+            margin-top: 4px;
+        }
+
+        #mytodo-page .mytodo-hash-row {
+            display: block;
+        }
+
+        #mytodo-page .mytodo-copy {
+            margin-top: 8px;
+        }
+    }
+
+    #mytodo-page { overflow-wrap: anywhere; }
+    #mytodo-page .mytodo-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 9px; }
+    #mytodo-page .mytodo-brand svg { flex: 0 0 auto; width: 48px; height: 48px; }
+    #mytodo-page .mytodo-brand h2 { margin: 0; }
+    #mytodo-page .mytodo-button[aria-disabled="true"] { color: #627182; background: #edf1f5; border-color: #d8dee8; cursor: default; }
+    #mytodo-page a:focus-visible, #mytodo-page button:focus-visible, #mytodo-page summary:focus-visible { outline: 3px solid #00A0D7; outline-offset: 3px; }
+    #mytodo-page [hidden] { display: none !important; }
+    #mytodo-page .mytodo-download-status { margin: 10px 0 0; font-size: .88rem; color: var(--mytodo-muted); }
+    #mytodo-page details { padding: 14px 0; border-bottom: 1px solid var(--mytodo-border); }
+    #mytodo-page details:last-child { border-bottom: 0; }
+    #mytodo-page summary { cursor: pointer; font-weight: 700; }
+    #mytodo-page details p { margin: 9px 0 0; color: var(--mytodo-muted); font-size: .9rem; }
+    #mytodo-page .mytodo-table-wrap { max-width: 100%; }
+</style>
+<div id="mytodo-page" data-repository-url="https://github.com/lottoria-dev/MyToDoWidget" data-release-tag="1.1.2" data-release-ready="true">
+    <header class="mytodo-header">
+        <span class="mytodo-version">Windows x64 · 1.1.2</span>
+        <div class="mytodo-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="MyToDo">
+<rect width="48" height="48" rx="12" fill="#245B54"/>
+<path d="M13 8H30L37 15V36Q37 40 33 40H13Q9 40 9 36V12Q9 8 13 8Z" fill="#DFF6EB"/>
+<path d="M30 8V15H37Z" fill="#A4D8C6"/>
+<g fill="#245B54"><rect x="15" y="18" width="15" height="2" rx="1"/><rect x="15" y="24" width="11" height="2" rx="1"/><rect x="15" y="30" width="7" height="2" rx="1"/></g>
+<circle cx="35" cy="35" r="10" fill="#00A0D7"/>
+<path d="M30 35L33.5 38.5L40 31.5" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg><h2>MyToDo</h2></div>
+        <p>구글 시트에 자유롭게 적고, 바탕화면에서 한 번의 새로고침으로 읽습니다.<br>메모를 담은 말풍선과 투명한 유리판을 내 취향에 맞게 꾸미는 Windows 위젯입니다.</p>
+    </header>
+
+    <section class="mytodo-download-panel" aria-label="프로그램 다운로드">
+        <div>
+            <div class="mytodo-download-title">MyToDo 1.1.2</div>
+            <p class="mytodo-download-meta">Windows x64 · .NET 런타임 포함 · 무료 사용 · ZIP 압축 해제 후 실행</p>
+            <div class="mytodo-actions">
+                <a class="mytodo-button mytodo-button-primary" data-link="download" href="https://github.com/lottoria-dev/MyToDoWidget/releases/download/1.1.2/MyToDoWidget-1.1.2-win-x64.zip" target="_blank" rel="noopener noreferrer">1.1.2 배포 ZIP 다운로드</a>
+                <a class="mytodo-button" data-link="release" href="https://github.com/lottoria-dev/MyToDoWidget/releases/tag/1.1.2" target="_blank" rel="noopener noreferrer">Release 정보</a>
+                <a class="mytodo-button" data-link="source" href="https://github.com/lottoria-dev/MyToDoWidget" target="_blank" rel="noopener noreferrer">소스 코드 보기</a>
+            </div>
+            <p class="mytodo-download-status" data-release-status>1.1.2 배포 파일은 GitHub Releases에서 확인하세요.</p>
+        </div>
+        <div class="mytodo-download-side">
+            <div class="mytodo-file-name">MyToDoWidget.exe</div>
+            <div class="mytodo-file-name">Windows x64</div>
+            <div class="mytodo-file-name">Standalone</div>
+        </div>
+    </section>
+
+    <div class="mytodo-note">
+        <p><strong>한 셀이 하나의 메모입니다.</strong> 날짜나 제목 형식에 맞출 필요 없이 A열에 자유롭게 입력하세요. 글을 쓰고 수정하는 곳은 구글 시트, 읽는 곳은 MyToDo입니다.</p>
+    </div>
+
+
+    <div class="mytodo-note mytodo-note-warning" style="margin-top:14px">
+        <p><strong>민감한 메모는 입력하지 않는 것을 권장합니다.</strong> ‘링크가 있는 모든 사용자 · 뷰어’는 수정을 막지만, 링크를 아는 사람은 로그인 없이 내용을 읽을 수 있습니다. 주소를 숨겨도 공유된 내용이 비공개로 바뀌지는 않습니다.</p>
+        <p>공유 권한은 파일 전체에 적용됩니다. A열만 표시해도 다른 열·탭의 열람이 차단되지는 않으며, 파일 소유자의 이름·이메일도 표시될 수 있습니다. 메모 전용 파일을 사용하세요.</p>
+    </div>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-start">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">01</span><h3 id="mytodo-start">빠른 시작</h3></div>
+        <p class="mytodo-lead">처음 한 번 연결해 두면, 다음부터는 시트를 열지 않고 메모를 불러옵니다.</p>
+        <ol class="mytodo-steps">
+            <li>실행용 ZIP을 내려받아 원하는 폴더에 압축을 풀고 <code>MyToDoWidget.exe</code>를 실행합니다. standalone 배포본은 .NET을 따로 설치하지 않아도 됩니다.</li>
+            <li><a href="https://docs.google.com/spreadsheets/" target="_blank" rel="noopener noreferrer">Google Sheets</a>에서 메모 전용 스프레드시트 파일을 만듭니다.</li>
+            <li>위젯 우클릭 → <strong>설정 → 간편 설정 및 사용법 → CSV 템플릿 저장</strong>에서 예시를 저장하고, 구글 시트의 <strong>파일 → 가져오기 → 업로드</strong>로 가져옵니다. A1부터 직접 작성해도 됩니다.</li>
+            <li>A열을 <strong>서식 → 숫자 → 일반 텍스트</strong>로 지정하고 메모를 적습니다. 제목 행은 필요하지 않습니다. 셀 안 줄바꿈은 <code>Alt+Enter</code>입니다.</li>
+            <li>오른쪽 위 <strong>공유 → 일반 액세스 → 링크가 있는 모든 사용자 → 뷰어</strong>를 선택하고 완료합니다.</li>
+            <li>메모를 적은 탭을 열고 <strong>브라우저 주소</strong>를 복사하여 위젯 <strong>설정 → 연결·동작</strong>에 넣고 저장합니다. 탭 번호가 없는 일반 공유 링크는 첫 탭을 읽습니다.</li>
+            <li>수정 후 <strong>새로고침</strong> 또는 <code>F5</code>를 누릅니다. 다른 PC에도 같은 공유 주소를 처음 한 번 등록합니다.</li>
+        </ol>
+        <div class="mytodo-note" style="margin-top:14px"><p>‘웹에 게시’와 OAuth 인증은 필요하지 않습니다. 위젯은 Google 로그인 정보와 브라우저 쿠키를 가져오지 않으며, 시트 편집은 브라우저에서 합니다.</p></div>
+    </section>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-release-heading">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">02</span><h3 id="mytodo-release-heading">이번 버전 변경 사항</h3></div>
+        <div class="mytodo-release">
+            <div class="mytodo-release-header"><strong>MyToDo 1.1.2</strong><span class="mytodo-release-date">문서 기준: 2026.10.05.</span></div>
+            <div class="mytodo-release-body"><ul class="mytodo-list">
+                <li>구글 시트 일반 공유 링크를 사용합니다. ‘링크가 있는 모든 사용자 · 뷰어’로 설정하며 웹에 게시나 OAuth 인증은 필요하지 않습니다.</li>
+                <li>민감한 메모 입력을 권장하지 않는 이유를 설정·사용법·정보와 이 페이지에 안내합니다.</li>
+                <li>환경설정창을 밝은 테마로 고정하고 드롭다운의 선택값·목록 글자색을 개선했습니다. 유리판의 ‘밝은 테마’ 옵션을 제거했습니다.</li>
+                <li>말풍선 내부의 위아래 여백을 줄여 짧은 메모도 더 간결하게 보이도록 했습니다.</li>
+                <li>라이선스·외부 구성요소·AI 개발 도구 활용 표기와 검증 기록을 정리했습니다. 이후 Apps Script 연동 계획도 포함합니다.</li>
+            </ul></div>
+        </div>
+    </section>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-features">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">03</span><h3 id="mytodo-features">주요 기능</h3></div>
+        <div class="mytodo-table-wrap" tabindex="0" role="region" aria-label="주요 기능 표. 좁은 화면에서는 좌우로 스크롤할 수 있습니다."><table>
+            <thead><tr><th scope="col">기능</th><th scope="col">설명</th></tr></thead>
+            <tbody>
+                <tr><td>자유 메모</td><td>A1부터 A열의 비어 있지 않은 셀을 위에서 아래로 읽습니다. 셀 하나가 말풍선 하나이며 줄바꿈·한글·기호를 유지합니다.</td></tr>
+                <tr><td>Windows 자동 실행</td><td>연결·동작 탭에서 선택하면 현재 Windows 계정으로 로그인할 때 시작합니다. 저장으로 적용하며 기본값은 꺼짐입니다.</td></tr>
+                <tr><td>한 번에 새로고침</td><td>버튼이나 F5로 다시 불러옵니다. 선택하면 실행할 때 한 번 갱신합니다. 연결이 실패하면 마지막 정상 메모를 유지합니다.</td></tr>
+                <tr><td>말풍선 배치</td><td>왼쪽·가운데·오른쪽 정렬, 내용에 맞춘 폭·위젯 폭, 0~40의 수직 간격을 조절합니다. 정렬은 꼬리 방향과 독립적입니다.</td></tr>
+                <tr><td>모양과 꼬리</td><td>둥근 사각형·사각형·물방울형·캡슐형·모서리 컷을 제공합니다. 꼬리는 왼쪽·오른쪽·없음 중 선택합니다.</td></tr>
+                <tr><td>색상과 글꼴</td><td>말풍선 파스텔 12종, 유리판 테마 8종과 사용자 색상을 제공합니다. 글자색·글꼴·크기·굵게·기울임을 조절하며 설치된 한글 고정폭 글꼴을 우선 추천합니다.</td></tr>
+                <tr><td>유리판과 불투명도</td><td>유리판·말풍선·상단바 배경·흰색 테두리를 따로 조절합니다. 0%는 완전 투명, 100%는 완전 불투명입니다. 글자와 조작 아이콘은 또렷하게 유지합니다.</td></tr>
+                <tr><td>작은 상단바</td><td>제목과 아이콘, 최근 정상 갱신 시각, 새로고침·접기/펼치기·최소화·▲▼를 한 줄에 표시합니다. 좁은 폭에서는 갱신 시각을 줄이거나 숨기고 툴팁으로 확인합니다.</td></tr>
+                <tr><td>읽기와 크기 조절</td><td>마우스 휠 또는 ▲▼로 읽습니다. 창 크기에 맞춰 글자를 확대·축소하거나 고정 크기로 표시합니다. 가로 폭은 180 DIP까지 줄일 수 있습니다.</td></tr>
+                <tr><td>잠금·절전 복귀</td><td>화면 구성이 안정되면 저장 위치 복원을 시도합니다. 화면 밖 위젯은 트레이 메뉴에서 주 모니터로 가져옵니다.</td></tr>
+                <tr><td>밝은 환경설정</td><td>설정창은 밝은 테마로 고정됩니다. 위젯의 색상·불투명도는 별도로 꾸밀 수 있습니다.</td></tr>
+                <tr><td>연결 정보 보관</td><td>등록 여부만 보여 주고 저장된 주소는 다시 표시하지 않습니다. 위젯은 Google 로그인을 요구하지 않습니다. 시트 편집에 필요한 로그인은 기본 브라우저에서 관리합니다.</td></tr>
+            </tbody>
+        </table></div>
+        <div class="mytodo-note" style="margin-top:14px"><p>날짜·todo·done은 일반 텍스트입니다. 날짜 자동 정렬이나 완료 체크, 시트로 다시 쓰기는 지원하지 않습니다. B열 이후의 내용과 시트의 글꼴·색상 서식은 위젯에 표시하지 않습니다.</p></div>
+    </section>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-controls">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">04</span><h3 id="mytodo-controls">기본 조작</h3></div>
+        <div class="mytodo-grid">
+            <div class="mytodo-info-box"><h4>설정과 시트 열기</h4><p>위젯을 우클릭해 설정이나 구글 시트 열기를 선택합니다. 말풍선 더블클릭도 구글 시트 목록을 엽니다. 로그인된 브라우저에서는 자신의 시트를 고를 수 있습니다.</p></div>
+            <div class="mytodo-info-box"><h4>위치와 크기</h4><p>상단 제목·빈 곳을 끌어 옮기고, 펼친 창의 가장자리·모서리를 끌어 크기를 바꿉니다. 이동 중 Esc를 누르면 취소합니다. 기본 창 끌기의 타일 배치를 호출하지 않습니다.</p></div>
+            <div class="mytodo-info-box"><h4>접기와 최소화</h4><p>접기는 본문을 접고 상단바만 남깁니다. 다시 펼치면 높이와 읽던 위치를 복원합니다. 최소화는 위젯 전체를 트레이로 숨깁니다.</p></div>
+            <div class="mytodo-info-box"><h4>다시 표시와 종료</h4><p>트레이 아이콘을 더블클릭하면 위젯이 나타납니다. 완전히 종료하려면 트레이 우클릭 → 종료를 선택합니다. Alt+F4는 숨기기로 동작합니다.</p></div>
+            <div class="mytodo-info-box"><h4>메모 읽기와 복사</h4><p>메모 위에서 휠을 돌리거나 ▲▼를 누릅니다. 화살표는 길게 눌러 연속 이동할 수 있습니다. 메모를 선택한 뒤 Ctrl+C로 복사합니다.</p></div>
+            <div class="mytodo-info-box"><h4>꾸미기 미리보기</h4><p>말풍선·유리판 설정은 즉시 미리 볼 수 있습니다. 저장으로 확정하고 취소·Esc로 원래 외형을 복원합니다. 위젯 폭 모드에서는 정렬 선택이 잠시 비활성화됩니다.</p></div>
+        </div>
+    </section>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-autostart">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">05</span><h3 id="mytodo-autostart">Windows 시작 시 자동 실행</h3></div>
+        <p class="mytodo-lead">컴퓨터를 켜고 현재 Windows 계정에 로그인할 때 위젯을 자동으로 엽니다.</p>
+        <ol class="mytodo-steps">
+            <li>위젯 우클릭 → <strong>설정 → 연결·동작</strong>을 엽니다.</li>
+            <li><strong>Windows 시작 시 자동 실행</strong>을 켜고 <strong>저장</strong>합니다. 처음에는 꺼져 있으며 취소하면 등록하지 않습니다.</li>
+            <li>최신 메모도 불러오려면 <strong>실행할 때 한 번 새로고침</strong>을 함께 선택합니다.</li>
+            <li>자동 실행을 해제하려면 같은 옵션을 끄고 저장합니다.</li>
+        </ol>
+        <div class="mytodo-note" style="margin-top:14px"><p>EXE를 옮겼다면 새 위치에서 한 번 직접 실행하세요. 이미 등록된 경로만 갱신합니다. Windows 시작 앱에서 차단한 경우 그곳에서도 사용으로 바꾸어야 합니다. Windows가 로그인 후 실행을 잠시 늦출 수 있습니다.</p></div>
+    </section>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-storage">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">06</span><h3 id="mytodo-storage">저장과 업데이트</h3></div>
+        <ul class="mytodo-list">
+            <li>설정·연결 주소·마지막 메모는 <code>%LOCALAPPDATA%\MyToDoWidget\state.dat</code>에 Windows 사용자 계정으로 암호화하여 저장합니다.</li>
+            <li>저장할 때 이전 정상 상태를 백업합니다. 연결 실패 시 마지막 메모·갱신 시각을 유지하며, 정상적으로 빈 A열을 받으면 목록을 비웁니다.</li>
+            <li>업데이트 전 트레이에서 기존 앱을 완전히 종료하고 새 실행용 ZIP을 풉니다. 1.0.x의 웹 게시 주소는 연결·캐시를 해제하고 일반 공유 주소를 다시 등록하도록 안내합니다. 외형 설정은 유지합니다.</li>
+            <li>이전 웹 게시본은 Google Sheets에서 별도로 게시 중지하세요. 위젯의 연결 변경·해제는 Google 공유 권한을 변경하지 않습니다.</li>
+            <li>검토용 1.1.x의 설정은 정식판과 별도 폴더에 있습니다. 정식판에는 공유 주소를 다시 등록하세요.</li>
+            <li>다른 PC에도 같은 일반 공유 주소를 한 번 등록합니다. 글꼴과 외형은 각 PC에서 선택하며 설치되지 않은 글꼴은 Windows 대체 글꼴로 표시합니다.</li>
+            <li>자동 실행 중 EXE를 옮기면 새 위치에서 한 번 직접 실행하세요. 앱 삭제 전 자동 실행을 끄고 저장합니다.</li>
+        </ul>
+    </section>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-help">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">07</span><h3 id="mytodo-help">자주 묻는 질문</h3></div>
+        <details><summary>시트를 고쳤는데 메모가 바뀌지 않아요.</summary><p>새로고침 또는 F5를 누르세요. 연결한 탭의 A열인지 확인합니다. 접근 오류가 발생하면 마지막 정상 메모를 유지하므로 갱신 시각과 오류 안내도 확인하세요.</p></details>
+        <details><summary>어떤 주소를 등록해야 하나요?</summary><p>일반 액세스를 ‘링크가 있는 모든 사용자 · 뷰어’로 설정한 뒤 메모 탭을 연 브라우저 주소를 등록합니다. ‘웹에 게시’ 주소는 사용하지 않습니다. 조직 정책이나 다운로드 제한으로 읽기가 막힐 수 있습니다.</p></details>
+        <details><summary>뷰어로 설정하면 메모는 비공개인가요?</summary><p>뷰어는 수정을 막는 권한입니다. 링크를 아는 사람은 로그인 없이 읽을 수 있습니다. 민감한 내용을 입력하지 마세요. 접근을 막으려면 Google Sheets에서 일반 액세스를 ‘제한됨’으로 바꾸어야 하며, 그러면 위젯도 새 메모를 읽지 못합니다.</p></details>
+        <details><summary>투명하게 하니 휠이 작동하지 않는 곳이 있어요.</summary><p>완전히 투명한 빈 곳은 아래 창으로 입력이 전달될 수 있습니다. 글자 위에서 휠을 사용하거나 상단 ▲▼를 누르세요. 배경 불투명도를 조금 올려도 됩니다.</p></details>
+        <details><summary>위젯이 화면에 보이지 않아요.</summary><p>트레이 아이콘을 더블클릭해 표시합니다. 그래도 보이지 않으면 트레이 우클릭 → 주 모니터로 가져오기를 선택하세요.</p></details>
+        <details><summary>여러 PC에서 동시에 편집할 수 있나요?</summary><p>각 PC의 브라우저에서 구글 시트를 편집합니다. MyToDo는 시트를 수정하지 않고 공유된 내용을 읽습니다. 같은 주소를 연결하고 새로고침하여 확인하세요.</p></details>
+    </section>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-hash-heading">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">08</span><h3 id="mytodo-hash-heading">다운로드 파일 확인</h3></div>
+        <p class="mytodo-lead">배포 ZIP과 함께 제공되는 .sha256 파일의 값과 다운로드한 ZIP의 해시를 비교합니다.</p>
+        <div class="mytodo-hash"><span class="mytodo-hash-label">ZIP을 내려받은 폴더에서 실행할 Windows 명령</span><div class="mytodo-hash-row">
+            <code id="mytodo-hash-command">certutil -hashfile MyToDoWidget-1.1.2-win-x64.zip SHA256</code>
+            <button type="button" class="mytodo-copy" data-copy-target="mytodo-hash-command">명령 복사</button>
+        </div></div>
+        <div class="mytodo-actions" style="margin-top:12px"><a class="mytodo-button" data-link="hash" href="https://github.com/lottoria-dev/MyToDoWidget/releases/download/1.1.2/MyToDoWidget-1.1.2-win-x64.zip.sha256" target="_blank" rel="noopener noreferrer">공식 SHA-256 파일 보기</a></div>
+        <p class="mytodo-lead" style="margin:12px 0 0">체크섬은 ZIP 기준입니다. 압축을 푼 EXE의 값과 비교하지 마세요.</p>
+    </section>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-license-heading">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">09</span><h3 id="mytodo-license-heading">라이선스와 개발 도구</h3></div>
+        <div class="mytodo-grid">
+            <div class="mytodo-info-box"><h4>MyToDo 소스</h4><p>자체 소스는 MIT 라이선스입니다. 무료 사용 범위, 공개 소스와 재배포 조건은 소스·배포 묶음의 <code>LICENSE.md</code>를 확인하세요.</p></div>
+            <div class="mytodo-info-box"><h4>외부 구성요소</h4><p>standalone 배포본에는 .NET 런타임이 포함됩니다. <code>THIRD_PARTY_NOTICES.md</code>와 <code>licenses</code> 폴더의 고지를 함께 제공합니다.</p></div>
+        </div>
+        <p class="mytodo-lead" style="margin:14px 0 0">MyToDo는 개발자가 직접 기획하며, 일부 코드 작성·검토 및 문서화 과정에 AI 기반 개발 도구를 활용했습니다. 최종 설계 결정과 검증 및 배포 책임은 개발자에게 있습니다. 수행한 검사와 남은 검증은 <code>VALIDATION.md</code>에 기록합니다.</p>
+    </section>
+
+    <section class="mytodo-section" aria-labelledby="mytodo-roadmap">
+        <div class="mytodo-section-heading"><span class="mytodo-section-number">10</span><h3 id="mytodo-roadmap">이후 업데이트 계획</h3></div>
+        <p class="mytodo-lead">향후 Apps Script를 활용해 시트를 제한된 상태로 두고 별도 접근 키로 읽는 구조를 검토합니다. 소유자의 초기 Google 승인과 설정이 필요하며, 접근 키 관리·폐기와 노출 한계도 함께 다룹니다. 1.x에는 아직 적용되지 않았습니다.</p>
+    </section>
+
+    <footer class="mytodo-footer">
+        <p><strong>현재 버전:</strong> 1.1.2 · 문서 기준 2026.10.05.</p>
+        <p><strong>제작:</strong> MathTime</p>
+        <p><strong>공식 소스:</strong> <a href="https://github.com/lottoria-dev/MyToDoWidget" target="_blank" rel="noopener noreferrer">GitHub 저장소</a></p>
+        <p><strong>문의:</strong> <a href="mailto:mathtime.ai@gmail.com">mathtime.ai@gmail.com</a></p>
+        <p><strong>공식 배포:</strong> <a href="https://mathtime.kr/?page=mytodo">mathtime.kr/?page=mytodo</a></p>
+        <p>© 2026 MathTime. MyToDo 소스: MIT License.</p>
+    </footer>
+    <div class="mytodo-toast" role="status" aria-live="polite">복사했습니다.</div>
+</div>
+<script>
+(function () {
+    const root = document.getElementById('mytodo-page');
+    if (!root || root.dataset.initialized === 'true') return;
+    root.dataset.initialized = 'true';
+    const repository = (root.dataset.repositoryUrl || '').trim().replace(/\/+$/, '');
+    const tag = root.dataset.releaseTag || '1.1.2';
+    const file = 'MyToDoWidget-' + tag + '-win-x64.zip';
+    const validRepository = /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository);
+    function enableLink(key, address, label) {
+        const link = root.querySelector('[data-link="' + key + '"]');
+        if (!link) return;
+        link.href = address;
+        link.removeAttribute('aria-disabled');
+        if (label) link.textContent = label;
+    }
+    if (validRepository) {
+        enableLink('source', repository);
+        enableLink('download', repository + '/releases', 'GitHub Releases 열기');
+        enableLink('release', repository + '/releases');
+        enableLink('hash', repository + '/releases', 'Release에서 SHA-256 확인');
+        if (root.dataset.releaseReady === 'true' && /^\d+\.\d+\.\d+$/.test(tag)) {
+            const release = repository + '/releases/download/' + encodeURIComponent(tag) + '/';
+            enableLink('download', release + file, tag + ' 배포 ZIP 다운로드');
+            enableLink('release', repository + '/releases/tag/' + encodeURIComponent(tag));
+            enableLink('hash', release + file + '.sha256', '공식 SHA-256 파일 보기');
+            root.querySelector('[data-release-status]').hidden = true;
+        }
+    }
+    const toast = root.querySelector('.mytodo-toast');
+    let toastTimer;
+    function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('is-visible');
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () { toast.classList.remove('is-visible'); }, 1800);
+    }
+    async function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            try { await navigator.clipboard.writeText(text); return; } catch (_) { /* Try the fallback below. */ }
+        }
+        const helper = document.createElement('textarea');
+        helper.value = text;
+        helper.setAttribute('readonly', '');
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        document.body.appendChild(helper);
+        helper.select();
+        let copied = false;
+        try { copied = document.execCommand('copy'); } finally { helper.remove(); }
+        if (!copied) throw new Error('복사하지 못했습니다.');
+    }
+    root.addEventListener('click', async function (event) {
+        const button = event.target.closest('[data-copy-target]');
+        if (!button || !root.contains(button) || button.disabled) return;
+        const target = root.querySelector('#' + button.dataset.copyTarget);
+        if (!target) return;
+        const original = button.textContent;
+        button.disabled = true;
+        try {
+            await copyText(target.textContent.trim());
+            button.textContent = '복사됨';
+            showToast('ZIP 검증 명령을 복사했습니다.');
+        } catch (_) { showToast('명령을 선택해 직접 복사하세요.'); }
+        window.setTimeout(function () { button.textContent = original; button.disabled = false; }, 1200);
+    });
+})();
+</script>

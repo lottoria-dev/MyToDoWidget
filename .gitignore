@@ -2,7 +2,12 @@
 **/bin/
 **/obj/
 dist/
+TestResults/
 *.user
 *.suo
-state.dat*
+*.pubxml.user
 *.tmp
+state.dat*
+*.log
+.DS_Store
+Thumbs.db

@@ -25,9 +25,19 @@ public sealed class StateStore(string directory, IStateCipher cipher)
                 if (new FileInfo(path).Length > MaxStateBytes) continue;
                 var state = JsonSerializer.Deserialize<AppState>(cipher.Unprotect(File.ReadAllBytes(path)));
                 if (state is null || state.SchemaVersion != 1) continue;
-                if (state.Source is not null) state.Source = SheetSource.Normalize(state.Source).AbsoluteUri;
+                if (state.Source is not null)
+                {
+                    if (SheetSource.IsLegacyPublished(state.Source))
+                    {
+                        state.Source = null;
+                        state.SharedLinkSetupRequired = true;
+                    }
+                    else state.Source = SheetSource.Normalize(state.Source).AbsoluteUri;
+                }
                 state.Normalize();
-                return new(state, path == _path ? null : "백업에서 설정과 메모를 복구했습니다.");
+                string? notice = path == _path ? null : "백업에서 설정과 메모를 복구했습니다.";
+                if (state.SharedLinkSetupRequired) notice = notice is null ? SheetSource.LegacyNotice : notice + "\n" + SheetSource.LegacyNotice;
+                return new(state, notice);
             }
             catch (Exception ex) when (ex is not OutOfMemoryException) { /* No raw errors: they may contain a source URL. */ }
         }

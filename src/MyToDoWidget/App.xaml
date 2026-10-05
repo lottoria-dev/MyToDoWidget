@@ -3,6 +3,34 @@
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  ShutdownMode="OnExplicitShutdown">
  <Application.Resources>
+  <!-- Vector artwork for the About tab; scales at the current monitor DPI. -->
+  <DrawingImage x:Key="AboutAppIcon">
+   <DrawingImage.Drawing>
+    <DrawingGroup>
+     <GeometryDrawing Brush="#245B54">
+      <GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,48,48" RadiusX="12" RadiusY="12"/></GeometryDrawing.Geometry>
+     </GeometryDrawing>
+     <GeometryDrawing Brush="#DFF6EB" Geometry="M 13,8 L 30,8 L 37,15 L 37,36 Q 37,40 33,40 L 13,40 Q 9,40 9,36 L 9,12 Q 9,8 13,8 Z"/>
+     <GeometryDrawing Brush="#A4D8C6" Geometry="M 30,8 L 30,15 L 37,15 Z"/>
+     <GeometryDrawing Brush="#245B54">
+      <GeometryDrawing.Geometry>
+       <GeometryGroup>
+        <RectangleGeometry Rect="15,18,15,2" RadiusX="1" RadiusY="1"/>
+        <RectangleGeometry Rect="15,24,11,2" RadiusX="1" RadiusY="1"/>
+        <RectangleGeometry Rect="15,30,7,2" RadiusX="1" RadiusY="1"/>
+       </GeometryGroup>
+      </GeometryDrawing.Geometry>
+     </GeometryDrawing>
+     <GeometryDrawing Brush="#00A0D7">
+      <GeometryDrawing.Geometry><EllipseGeometry Center="35,35" RadiusX="10" RadiusY="10"/></GeometryDrawing.Geometry>
+     </GeometryDrawing>
+     <GeometryDrawing Geometry="M 30,35 L 33.5,38.5 L 40,31.5">
+      <GeometryDrawing.Pen><Pen Brush="White" Thickness="2.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+     </GeometryDrawing>
+    </DrawingGroup>
+   </DrawingImage.Drawing>
+  </DrawingImage>
+
   <SolidColorBrush x:Key="TextBrush" Color="#F1F5F9" />
   <SolidColorBrush x:Key="MutedBrush" Color="#ADBACB" />
   <SolidColorBrush x:Key="CardBrush" Color="#18FFFFFF" />
@@ -13,8 +41,11 @@
   <SolidColorBrush x:Key="LineBrush" Color="#25FFFFFF" />
   <SolidColorBrush x:Key="PanelBrush" Color="#202937" />
   <SolidColorBrush x:Key="FieldBrush" Color="#14202D" />
-  <SolidColorBrush x:Key="AccentBrush" Color="#BFE3D7" />
-  <SolidColorBrush x:Key="AccentTextBrush" Color="#153E32" />
+  <SolidColorBrush x:Key="AccentBrush" Color="#00A0D7" />
+  <SolidColorBrush x:Key="AccentTextBrush" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="TabBrush" Color="#21485D" />
+  <SolidColorBrush x:Key="TabTextBrush" Color="#C6ECFC" />
+  <SolidColorBrush x:Key="ScrollThumbBrush" Color="#7C91A2" />
   <Style TargetType="Window">
    <Setter Property="FontFamily" Value="Malgun Gothic" />
    <Setter Property="FontSize" Value="13" />
@@ -23,6 +54,20 @@
    <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
   </Style>
   <Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource TextBrush}" /></Style>
+  <Style TargetType="ToolTip">
+   <Setter Property="Background" Value="#263542"/><Setter Property="Foreground" Value="#F8FAFC"/>
+   <Setter Property="BorderBrush" Value="#637786"/><Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="FontFamily" Value="Malgun Gothic"/><Setter Property="FontSize" Value="12"/>
+   <Setter Property="Padding" Value="9,6"/><Setter Property="MaxWidth" Value="360"/>
+   <Setter Property="ContentTemplate"><Setter.Value><DataTemplate>
+    <TextBlock Text="{Binding}" Foreground="#F8FAFC" FontFamily="Malgun Gothic" FontSize="12" TextWrapping="Wrap"/>
+   </DataTemplate></Setter.Value></Setter>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToolTip">
+    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+     <ContentPresenter ContentSource="Content"/>
+    </Border>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
   <Style TargetType="Button">
    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
    <Setter Property="Background" Value="{DynamicResource CardBrush}" />
@@ -50,6 +95,9 @@
    <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
    <Setter Property="BorderThickness" Value="0" />
    <Setter Property="FontWeight" Value="SemiBold" />
+   <Setter Property="ContentTemplate"><Setter.Value><DataTemplate>
+    <TextBlock Text="{Binding}" Foreground="{DynamicResource AccentTextBrush}" FontWeight="SemiBold"/>
+   </DataTemplate></Setter.Value></Setter>
   </Style>
   <Style TargetType="CheckBox">
    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />

@@ -2,7 +2,12 @@ namespace MyToDoWidget.Services;
 
 public static class Theme
 {
-    public static void Apply(bool light)
+    public static void Apply(bool light) => ApplyTo(Application.Current.Resources, light);
+
+    // Window-local resources keep settings readable during widget previews.
+    public static void ApplySettings(ResourceDictionary resources) => ApplyTo(resources, light: true);
+
+    private static void ApplyTo(ResourceDictionary resources, bool light)
     {
         var colors = new Dictionary<string, string>
         {
@@ -16,10 +21,13 @@ public static class Theme
             ["LineBrush"] = light ? "#203A5266" : "#25FFFFFF",
             ["PanelBrush"] = light ? "#F1F5F7" : "#202937",
             ["FieldBrush"] = light ? "#FFFFFF" : "#14202D",
-            ["AccentBrush"] = light ? "#245F4F" : "#BFE3D7",
-            ["AccentTextBrush"] = light ? "#FFFFFF" : "#153E32"
+            ["AccentBrush"] = "#00A0D7",
+            ["AccentTextBrush"] = "#FFFFFF",
+            ["TabBrush"] = light ? "#D7F0FA" : "#21485D",
+            ["TabTextBrush"] = light ? "#18546D" : "#C6ECFC",
+            ["ScrollThumbBrush"] = light ? "#96A8B4" : "#7C91A2"
         };
         foreach (var pair in colors)
-            Application.Current.Resources[pair.Key] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(pair.Value));
+            resources[pair.Key] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(pair.Value));
     }
 }

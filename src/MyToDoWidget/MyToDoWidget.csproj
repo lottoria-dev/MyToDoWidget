@@ -15,5 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MyToDoWidget.Core\MyToDoWidget.Core.csproj" />
     <Resource Include="Assets\app.ico" />
+    <EmbeddedResource Include="..\..\templates\MyToDo_Template.csv" LogicalName="MyToDoWidget.MyToDo_Template.csv" />
   </ItemGroup>
 </Project>

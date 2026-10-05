@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="MyToDo">
+<rect width="48" height="48" rx="12" fill="#245B54"/>
+<path d="M13 8H30L37 15V36Q37 40 33 40H13Q9 40 9 36V12Q9 8 13 8Z" fill="#DFF6EB"/>
+<path d="M30 8V15H37Z" fill="#A4D8C6"/>
+<g fill="#245B54"><rect x="15" y="18" width="15" height="2" rx="1"/><rect x="15" y="24" width="11" height="2" rx="1"/><rect x="15" y="30" width="7" height="2" rx="1"/></g>
+<circle cx="35" cy="35" r="10" fill="#00A0D7"/>
+<path d="M30 35L33.5 38.5L40 31.5" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -2,10 +2,33 @@
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:controls="clr-namespace:MyToDoWidget.Controls"
- Title="MyToDo" Width="390" Height="530" MinWidth="310" MinHeight="280" MaxWidth="2000" MaxHeight="2000"
- WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="True" Background="Transparent"
+ Title="MyToDo" Width="390" Height="530" MinWidth="180" MinHeight="280" MaxWidth="2000" MaxHeight="2000"
+ WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
  ShowInTaskbar="False" Icon="Assets/app.ico"
- Loaded="Window_Loaded" Closing="Window_Closing" Closed="Window_Closed" PreviewKeyDown="Window_PreviewKeyDown">
+ Loaded="Window_Loaded" SizeChanged="Window_SizeChanged" Closing="Window_Closing" Closed="Window_Closed" PreviewKeyDown="Window_PreviewKeyDown">
+ <Window.ContextMenu>
+  <ContextMenu x:Name="WidgetMenu" Opened="WidgetMenu_Opened" Background="#F6F9FB" Foreground="#253643" BorderBrush="#BACBD5" BorderThickness="1" Padding="4" FontFamily="Malgun Gothic" FontSize="13">
+   <ContextMenu.Resources>
+    <Style TargetType="MenuItem">
+     <Setter Property="Foreground" Value="#253643"/><Setter Property="Background" Value="Transparent"/>
+     <Setter Property="Padding" Value="12,7"/>
+     <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem">
+      <Border x:Name="MenuItemChrome" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+       <TextBlock Text="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}" Foreground="{TemplateBinding Foreground}"/>
+      </Border>
+      <ControlTemplate.Triggers>
+       <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="MenuItemChrome" Property="Background" Value="#DBF1FB"/></Trigger>
+       <Trigger Property="IsEnabled" Value="False"><Setter TargetName="MenuItemChrome" Property="Opacity" Value="0.4"/></Trigger>
+      </ControlTemplate.Triggers>
+     </ControlTemplate></Setter.Value></Setter>
+    </Style>
+   </ContextMenu.Resources>
+   <MenuItem x:Name="SettingsMenuItem" Header="설정…" Click="Settings_Click"/>
+   <MenuItem Header="구글 시트 열기" Click="Sheets_Click"/>
+   <Separator/>
+   <MenuItem x:Name="CopyMenuItem" Header="선택한 메모 복사" Click="Copy_Click"/>
+  </ContextMenu>
+ </Window.ContextMenu>
  <Window.Resources>
   <Style x:Key="ResizeHandle" TargetType="Thumb">
    <Setter Property="Focusable" Value="False"/>
@@ -14,30 +37,41 @@
    <EventSetter Event="DragDelta" Handler="Resize_Delta"/>
    <EventSetter Event="DragCompleted" Handler="Resize_Completed"/>
   </Style>
-  <Style x:Key="MemoScrollBar" TargetType="ScrollBar">
-   <Setter Property="Width" Value="10"/>
-   <Setter Property="MinWidth" Value="10"/>
-   <Setter Property="Template"><Setter.Value>
-    <ControlTemplate TargetType="ScrollBar">
-     <Grid Background="Transparent" Margin="2,0">
-      <Track x:Name="PART_Track" Orientation="Vertical" IsDirectionReversed="True"
-        Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
-        ViewportSize="{TemplateBinding ViewportSize}" Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
-       <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template></RepeatButton></Track.DecreaseRepeatButton>
-       <Track.Thumb><Thumb MinHeight="24"><Thumb.Template><ControlTemplate TargetType="Thumb"><Border CornerRadius="3" Background="{DynamicResource MutedBrush}" Opacity="0.65"/></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
-       <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template></RepeatButton></Track.IncreaseRepeatButton>
-      </Track>
-     </Grid>
-    </ControlTemplate>
-   </Setter.Value></Setter>
-  </Style>
-
   <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-   <Setter Property="Width" Value="22"/><Setter Property="Height" Value="22"/>
-   <Setter Property="MinHeight" Value="22"/><Setter Property="Padding" Value="3"/>
-   <Setter Property="Margin" Value="1,0"/><Setter Property="Background" Value="Transparent"/>
+   <Setter Property="Width" Value="20"/><Setter Property="Height" Value="24"/>
+   <Setter Property="MinHeight" Value="24"/><Setter Property="Padding" Value="3"/>
+   <Setter Property="Margin" Value="0"/><Setter Property="Background" Value="Transparent"/>
    <Setter Property="BorderBrush" Value="Transparent"/><Setter Property="BorderThickness" Value="1"/>
-   <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+   <Setter Property="Foreground" Value="{DynamicResource BarTextBrush}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+    <Border x:Name="IconChrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="IconChrome" Property="Background" Value="{DynamicResource BarHoverBrush}"/></Trigger>
+     <Trigger Property="IsPressed" Value="True"><Setter TargetName="IconChrome" Property="Opacity" Value="0.65"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter TargetName="IconChrome" Property="Opacity" Value="0.35"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="IconChrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="ScrollArrow" TargetType="RepeatButton">
+   <Setter Property="Width" Value="16"/><Setter Property="Height" Value="24"/>
+   <Setter Property="FontFamily" Value="Segoe UI Symbol"/><Setter Property="FontSize" Value="6"/>
+   <Setter Property="Foreground" Value="{DynamicResource BarTextBrush}"/>
+   <Setter Property="Background" Value="Transparent"/><Setter Property="Focusable" Value="False"/>
+   <Setter Property="VerticalAlignment" Value="Center"/>
+   <Setter Property="Delay" Value="300"/><Setter Property="Interval" Value="70"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton">
+    <Border x:Name="ArrowChrome" Background="{TemplateBinding Background}" CornerRadius="3">
+     <TextBlock Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Foreground="{TemplateBinding Foreground}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ArrowChrome" Property="Background" Value="{DynamicResource BarHoverBrush}"/></Trigger>
+     <Trigger Property="IsPressed" Value="True"><Setter TargetName="ArrowChrome" Property="Opacity" Value="0.65"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ArrowChrome" Property="Opacity" Value="0.22"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
   </Style>
  </Window.Resources>
  <Grid Background="Transparent">
@@ -48,48 +82,49 @@
       <GradientStop Color="#50FFFFFF" Offset="0"/><GradientStop Color="#0CFFFFFF" Offset="0.35"/><GradientStop Color="#00FFFFFF" Offset="1"/>
      </LinearGradientBrush></Border.Background>
     </Border>
-    <Grid Margin="12,8">
-     <Grid.RowDefinitions><RowDefinition Height="24"/><RowDefinition Height="*"/><RowDefinition Height="20"/></Grid.RowDefinitions>
-     <Border Background="{DynamicResource ChromeBrush}" CornerRadius="6" Padding="6,0" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+    <Grid>
+     <Grid.RowDefinitions><RowDefinition Height="28"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+     <Border x:Name="TitleBar" Background="{DynamicResource HeaderBrush}" BorderBrush="{DynamicResource HeaderEdgeBrush}" BorderThickness="0,0,0,1" CornerRadius="13,13,0,0" Padding="6,1" MouseLeftButtonDown="Header_MouseLeftButtonDown" MouseMove="Header_MouseMove" MouseLeftButtonUp="Header_MouseLeftButtonUp" LostMouseCapture="Header_LostMouseCapture">
       <Grid>
-       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-       <TextBlock Text="MyToDo" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" ToolTip="끌어서 이동"/>
-       <StackPanel Grid.Column="1" Orientation="Horizontal">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+       <Grid VerticalAlignment="Center" Margin="0,0,4,0" Width="60">
+        <Border x:Name="TitleBadge" Background="Transparent" Height="24" ToolTip="끌어서 이동 · 우클릭으로 설정 / 구글 시트 열기">
+         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Image Source="Assets/app.ico" Width="9.333333" Height="9.333333" Margin="0,0,5,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+          <TextBlock Text="MyToDo" FontSize="11" Foreground="{DynamicResource BarTextBrush}" VerticalAlignment="Center"/>
+         </StackPanel>
+        </Border>
+       </Grid>
+       <TextBlock x:Name="TimeText" Grid.Column="1" FontFamily="Segoe UI" FontSize="10.5" Foreground="{DynamicResource BarTextBrush}"
+         VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,0,6,0" ToolTipService.InitialShowDelay="250"/>
+       <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
         <Button x:Name="RefreshButton" Style="{StaticResource IconButton}" ToolTip="새로고침 (F5)" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="새로고침" Click="Refresh_Click">
-         <Path Data="M15,6 A6,6 0 1 0 15,11 M15,2 L15,6 L11,6" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+         <Path Data="M15,6 A6,6 0 1 0 15,11 M15,2 L15,6 L11,6" Width="9.333333" Height="9.333333" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="0.933333" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
         </Button>
-        <Button x:Name="SheetsButton" Style="{StaticResource IconButton}" ToolTip="구글 시트 목록 열기" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="구글 시트" Click="Sheets_Click">
-         <Path Data="M3,1 L11,1 L15,5 L15,17 L3,17 Z M11,1 L11,5 L15,5 M6,9 L12,9 M6,12 L12,12 M9,7 L9,14" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
-        </Button>
-        <Button x:Name="SettingsButton" Style="{StaticResource IconButton}" ToolTip="설정" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="설정" Click="Settings_Click">
-         <Path Data="M3,4 L15,4 M3,9 L15,9 M3,14 L15,14 M6,1 L6,7 M12,6 L12,12 M7,11 L7,17" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
-        </Button>
-        <Button x:Name="RollUpButton" Style="{StaticResource IconButton}" ToolTip="롤업 · 말풍선 접기" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="말풍선 접기" Click="RollUp_Click">
-         <Path Data="M4,3 L14,3 M4,12 L9,7 L14,12" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
-        </Button>
-        <Button x:Name="RollDownButton" Style="{StaticResource IconButton}" ToolTip="롤다운 · 말풍선 펼치기" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="말풍선 펼치기" Click="RollDown_Click">
-         <Path Data="M4,15 L14,15 M4,6 L9,11 L14,6" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+        <Button x:Name="RollToggleButton" Style="{StaticResource IconButton}" ToolTip="롤업 · 말풍선 접기" AutomationProperties.Name="말풍선 접기" Click="RollToggle_Click">
+         <Path x:Name="RollToggleIcon" Data="M4,3 L14,3 M4,12 L9,7 L14,12" Width="9.333333" Height="9.333333" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="0.933333" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
         </Button>
         <Button x:Name="HideButton" Style="{StaticResource IconButton}" ToolTip="최소화 · 트레이로 숨기기" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="트레이로 숨기기" Click="Hide_Click">
-         <Path Data="M4,12 L14,12" Width="14" Height="14" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+         <Path Data="M4,12 L14,12" Width="9.333333" Height="9.333333" Stretch="Uniform" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="0.933333" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
         </Button>
+        <Border Width="1" Height="8" Background="{DynamicResource HeaderDividerBrush}" Margin="2,0" VerticalAlignment="Center"/>
+        <RepeatButton x:Name="ScrollUpButton" Content="▲" Style="{StaticResource ScrollArrow}" IsEnabled="False" Click="ScrollUp_Click" ToolTip="위로 스크롤 · 누르고 있으면 계속 이동" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="메모 위로 스크롤"/>
+        <RepeatButton x:Name="ScrollDownButton" Content="▼" Style="{StaticResource ScrollArrow}" IsEnabled="False" Click="ScrollDown_Click" ToolTip="아래로 스크롤 · 누르고 있으면 계속 이동" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="메모 아래로 스크롤"/>
        </StackPanel>
       </Grid>
      </Border>
-     <Grid x:Name="NoteArea" Grid.Row="1" Margin="0,8" ClipToBounds="True">
+     <Grid x:Name="NoteArea" Grid.Row="1" Margin="12,8,12,10" ClipToBounds="True">
       <ListBox x:Name="NoteList" Background="Transparent" BorderThickness="0" Padding="0" HorizontalContentAlignment="Stretch"
-        ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
+        ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden"
         ScrollViewer.CanContentScroll="True" ScrollViewer.PanningMode="VerticalOnly"
         VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
         VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.CacheLength="1"
         PreviewMouseWheel="NoteList_MouseWheel" PreviewMouseRightButtonDown="NoteList_RightClick"
         MouseDoubleClick="NoteList_DoubleClick" AutomationProperties.Name="메모 말풍선 목록">
-       <ListBox.Resources><Style TargetType="ScrollBar" BasedOn="{StaticResource MemoScrollBar}"/></ListBox.Resources>
-       <ListBox.ContextMenu><ContextMenu><MenuItem Header="선택한 메모 복사" Click="Copy_Click"/></ContextMenu></ListBox.ContextMenu>
        <ListBox.ItemContainerStyle>
         <Style TargetType="ListBoxItem">
          <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Padding" Value="0"/>
-         <Setter Property="Margin" Value="0,1,3,9"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+         <Setter Property="Margin" Value="{DynamicResource BubbleSpacing}"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
          <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
           <Grid Background="Transparent">
            <controls:SpeechBubble x:Name="Bubble" HorizontalAlignment="{DynamicResource BubbleAlignment}"
@@ -118,17 +153,12 @@
       </ListBox>
       <Border x:Name="EmptyPanel" VerticalAlignment="Center" Background="{DynamicResource ChromeBrush}" CornerRadius="12" Padding="16">
        <StackPanel>
-        <TextBlock x:Name="EmptyTitle" Text="메모를 연결해 주세요" FontSize="17" FontWeight="SemiBold" TextAlignment="Center"/>
+        <TextBlock x:Name="EmptyTitle" Text="메모를 연결해 주세요" FontSize="17" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
         <TextBlock x:Name="EmptyText" Foreground="{DynamicResource MutedBrush}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,10,0,16"/>
         <Button x:Name="EmptySettingsButton" Content="주소 등록" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Center" Click="Settings_Click"/>
        </StackPanel>
       </Border>
      </Grid>
-     <Border Grid.Row="2" Background="{DynamicResource ChromeBrush}" CornerRadius="5" Padding="6,0">
-      <TextBlock x:Name="TimeText" FontSize="10" Foreground="{DynamicResource MutedBrush}"
-        VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
-        ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
-     </Border>
     </Grid>
    </Grid>
   </Border>

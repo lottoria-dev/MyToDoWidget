@@ -69,6 +69,6 @@ public static class MemoCsv
         return result;
     }
 
-    private static MemoException Invalid() => new("CSV 내용을 읽을 수 없습니다. ‘웹에 게시’ 형식이 CSV인지 확인해 주세요.");
+    private static MemoException Invalid() => new("시트의 CSV 내용을 읽을 수 없습니다. 메모 탭 주소를 확인하고 다시 불러와 주세요.");
     private static MemoException TooLarge() => new("메모가 너무 큽니다. 전용 탭의 A열에 5,000개 이하, 셀당 50,000자 이하로 나누어 주세요. 게시 데이터는 2MB까지 읽을 수 있습니다.");
 }

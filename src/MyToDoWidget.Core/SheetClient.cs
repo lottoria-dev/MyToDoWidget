@@ -15,7 +15,7 @@ public sealed class SheetClient : IDisposable
             AllowAutoRedirect = false, UseCookies = false,
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
         }) { Timeout = Timeout.InfiniteTimeSpan };
-        _client.DefaultRequestHeaders.UserAgent.ParseAdd("MyToDoWidget/0.3");
+        _client.DefaultRequestHeaders.UserAgent.ParseAdd("MyToDoWidget/1.1.2");
     }
 
     public async Task<List<string>> FetchAsync(string source, CancellationToken cancellation = default)
@@ -40,10 +40,11 @@ public sealed class SheetClient : IDisposable
                     uri = next;
                     continue;
                 }
+                if (status is 401 or 403) throw SharingRequired();
                 if (!response.IsSuccessStatusCode) throw Unavailable();
                 string media = response.Content.Headers.ContentType?.MediaType?.ToLowerInvariant() ?? "";
                 if (media is not ("text/csv" or "application/csv" or "text/comma-separated-values" or "application/octet-stream"))
-                    throw new MemoException("CSV 응답을 받지 못했습니다. 메모 탭을 CSV 형식으로 웹에 게시했는지 확인해 주세요.");
+                    throw SharingRequired();
                 if (response.Content.Headers.ContentLength > MaxBytes) throw TooLarge();
                 await using var stream = await response.Content.ReadAsStreamAsync(timeout.Token);
                 using var bytes = new MemoryStream();
@@ -61,12 +62,13 @@ public sealed class SheetClient : IDisposable
         }
         catch (OperationCanceledException) when (!cancellation.IsCancellationRequested)
         { throw new MemoException("응답 시간이 초과되었습니다. 잠시 후 다시 불러와 주세요."); }
-        catch (HttpRequestException) { throw new MemoException("시트에 연결하지 못했습니다. 인터넷 연결과 게시 상태를 확인해 주세요."); }
-        catch (DecoderFallbackException) { throw new MemoException("CSV 문자 인코딩을 읽을 수 없습니다. Google Sheets의 CSV 게시 주소를 다시 등록해 주세요."); }
+        catch (HttpRequestException) { throw new MemoException("시트에 연결하지 못했습니다. 인터넷 연결과 공유 설정을 확인해 주세요."); }
+        catch (DecoderFallbackException) { throw new MemoException("CSV 문자 인코딩을 읽을 수 없습니다. Google Sheets의 일반 공유 주소를 다시 등록해 주세요."); }
         // Never forward exception messages, response bodies or URLs to the UI/log.
     }
 
-    private static MemoException Unavailable() => new("시트를 읽을 수 없습니다. 인터넷 연결과 ‘웹에 게시’ 상태를 확인해 주세요.");
-    private static MemoException TooLarge() => new("게시 데이터가 2MB를 초과했습니다. 메모 전용 탭만 게시해 주세요.");
+    private static MemoException SharingRequired() => new("시트를 읽을 수 없습니다. ‘링크가 있는 모든 사용자 · 뷰어’ 설정과 메모 탭 주소를 확인해 주세요. 다운로드 제한이나 조직 계정 정책도 영향을 줄 수 있습니다.");
+    private static MemoException Unavailable() => new("시트를 읽을 수 없습니다. 인터넷 연결, 공유 설정과 메모 탭 주소를 확인해 주세요.");
+    private static MemoException TooLarge() => new("시트 데이터가 2MB를 초과했습니다. 작은 메모 전용 시트를 사용해 주세요.");
     public void Dispose() => _client.Dispose();
 }

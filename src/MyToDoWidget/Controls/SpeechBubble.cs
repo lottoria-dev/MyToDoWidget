@@ -3,7 +3,7 @@ namespace MyToDoWidget.Controls;
 /// <summary>One filled outline prevents seams when the body and tail are translucent.</summary>
 public sealed class SpeechBubble : Decorator
 {
-    private const double TailWidth = 8, PaddingY = 12, Border = 1;
+    private const double TailWidth = 8, PaddingY = 8, Border = 1;
     private Geometry? _outline;
     private Size _outlineSize;
     private BubbleTail _outlineTail;
