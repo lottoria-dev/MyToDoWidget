@@ -8,13 +8,39 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
-    <AssemblyName>MyToDoWidget</AssemblyName>
+    <AssemblyName>MyToDo2</AssemblyName>
     <RootNamespace>MyToDoWidget</RootNamespace>
     <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyToDoWidget.Core\MyToDoWidget.Core.csproj" />
     <Resource Include="Assets\app.ico" />
-    <EmbeddedResource Include="..\..\templates\MyToDo_Template.csv" LogicalName="MyToDoWidget.MyToDo_Template.csv" />
+    <EmbeddedResource Include="..\..\apps-script\MyToDoSetup.gs" LogicalName="MyToDoWidget.Installer.gs" />
+    <Content Include="..\..\LICENSE.md;..\..\THIRD_PARTY_NOTICES.md" Link="%(Filename)%(Extension)" CopyToPublishDirectory="Always" ExcludeFromSingleFile="true" />
+    <Content Include="..\..\licenses\*.txt" Link="licenses\%(Filename)%(Extension)" CopyToPublishDirectory="Always" ExcludeFromSingleFile="true" />
+    <Content Include="..\..\README_RUNTIME_KO.txt" Link="README.txt" CopyToPublishDirectory="Always" ExcludeFromSingleFile="true" />
   </ItemGroup>
+  <Target Name="ExcludePublishedDebugSymbols" AfterTargets="ComputeResolvedFilesToPublishList" Condition="'$(Configuration)' == 'Release'">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(ResolvedFileToPublish.Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
+  <!-- Template addresses are local inputs, never build or publish content. -->
+  <Target Name="ExcludeTemplateSourceFromPublish" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(ResolvedFileToPublish.Filename)' == 'TemplateSource' Or '%(ResolvedFileToPublish.Filename)' == 'TemplateSource.private' Or '%(ResolvedFileToPublish.Filename)' == 'TemplateSource.example'" />
+    </ItemGroup>
+  </Target>
+  <Target Name="RemoveOldTemplateSourceFromBuild" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true' And '$(TargetDir)' != ''">
+    <ItemGroup>
+      <_OldTemplateBuildOutput Include="$(TargetDir)TemplateSource*.json" />
+    </ItemGroup>
+    <Delete Files="@(_OldTemplateBuildOutput)" />
+  </Target>
+  <Target Name="RemoveOldTemplateSourceFromPublish" AfterTargets="Publish" Condition="'$(PublishDir)' != ''">
+    <ItemGroup>
+      <_OldTemplatePublishOutput Include="$(PublishDir)TemplateSource*.json" />
+    </ItemGroup>
+    <Delete Files="@(_OldTemplatePublishOutput)" />
+  </Target>
 </Project>

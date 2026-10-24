@@ -3,7 +3,7 @@ namespace MyToDoWidget.Controls;
 /// <summary>One filled outline prevents seams when the body and tail are translucent.</summary>
 public sealed class SpeechBubble : Decorator
 {
-    private const double TailWidth = 8, PaddingY = 8, Border = 1;
+    private const double TailWidth = 8, PaddingY = 4, Border = 1;
     private Geometry? _outline;
     private Size _outlineSize;
     private BubbleTail _outlineTail;
@@ -22,20 +22,33 @@ public sealed class SpeechBubble : Decorator
         nameof(Shape), typeof(BubbleShape), typeof(SpeechBubble),
         new FrameworkPropertyMetadata(BubbleShape.Rounded, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
 
+    public static readonly DependencyProperty FitContentWidthProperty = DependencyProperty.Register(
+        nameof(FitContentWidth), typeof(bool), typeof(SpeechBubble),
+        new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsMeasure));
+    public bool FitContentWidth { get => (bool)GetValue(FitContentWidthProperty); set => SetValue(FitContentWidthProperty, value); }
+
     public Brush Fill { get => (Brush)GetValue(FillProperty); set => SetValue(FillProperty, value); }
     public Brush Stroke { get => (Brush)GetValue(StrokeProperty); set => SetValue(StrokeProperty, value); }
     public BubbleTail TailSide { get => (BubbleTail)GetValue(TailSideProperty); set => SetValue(TailSideProperty, value); }
     public BubbleShape Shape { get => (BubbleShape)GetValue(ShapeProperty); set => SetValue(ShapeProperty, value); }
     private double Tail => TailSide == BubbleTail.None ? 0 : TailWidth;
-    private double PaddingX => Shape == BubbleShape.Capsule ? 20 : 14;
+    private double PaddingX => Shape == BubbleShape.Capsule ? 10 : 7;
     private double InsetX => Tail + 2 * (PaddingX + Border);
     private const double InsetY = 2 * (PaddingY + Border);
 
     protected override Size MeasureOverride(Size availableSize)
     {
-        Child?.Measure(new Size(Math.Max(0, availableSize.Width - InsetX), Math.Max(0, availableSize.Height - InsetY)));
+        double available = Math.Max(0, availableSize.Width - InsetX);
+        double height = Math.Max(0, availableSize.Height - InsetY);
+        double width = available;
+        if (FitContentWidth)
+        {
+            Child?.Measure(new Size(double.PositiveInfinity, height));
+            width = BubbleLayout.Width(available, Child?.DesiredSize.Width ?? 0, true);
+        }
+        Child?.Measure(new Size(width, height));
         var content = Child?.DesiredSize ?? new Size();
-        return new Size(content.Width + InsetX, content.Height + InsetY);
+        return new Size(BubbleLayout.Width(available, content.Width, FitContentWidth) + InsetX, content.Height + InsetY);
     }
 
     protected override Size ArrangeOverride(Size finalSize)

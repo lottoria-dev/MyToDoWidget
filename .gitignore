@@ -11,3 +11,22 @@ state.dat*
 *.log
 .DS_Store
 Thumbs.db
+
+# Local template address and connection credentials
+**/TemplateSource.json
+**/TemplateSource.private.json
+*.mytodo-connection
+state-v2.dat*
+/backups/
+/private/
+
+# Personal development and unpublished artifacts
+/dev/
+/tests/
+/web/
+/private/
+*.zip
+*_wpftmp.csproj
+.env
+.env.*
+*.mytodo-connection

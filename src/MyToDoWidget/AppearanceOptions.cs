@@ -6,7 +6,7 @@ public sealed record AppearanceOptions(double FontSize, int BackgroundPercent, b
     string TextColor, string FontFamilyName, bool Bold, bool Italic, string? GlassColor,
     bool ScaleTextWithWindow, double TextReferenceWidth, double TextReferenceHeight,
     int HeaderBackgroundPercent, int OuterBorderPercent,
-    BubbleAlign Alignment, BubbleWidthMode WidthMode, int BubbleGap)
+    BubbleAlign Alignment, BubbleWidthMode WidthMode, int BubbleGap, string TagTextColor, bool UrgentHighlight, int UrgentDays, string UrgentColor)
 {
     public static AppearanceOptions FromState(AppState state) => new(state.FontSize, state.BackgroundPercent,
         state.LightTheme, state.GlassEffect, state.TailSide, state.BubbleShape, state.BubbleColor,
@@ -14,7 +14,7 @@ public sealed record AppearanceOptions(double FontSize, int BackgroundPercent, b
         state.ScaleTextWithWindow, state.TextReferenceWidth, state.TextReferenceHeight,
         state.HeaderBackgroundPercent, state.OuterBorderPercent,
         state.BubbleAlignment ?? (state.TailSide == BubbleTail.Right ? BubbleAlign.Right : BubbleAlign.Left),
-        state.BubbleWidth, state.BubbleGap);
+        BubbleWidthMode.Widget, state.BubbleGap, state.TagTextColor, state.UrgentHighlight, state.UrgentDays, state.UrgentColor);
 
     public void ApplyTo(AppState state)
     {
@@ -23,7 +23,8 @@ public sealed record AppearanceOptions(double FontSize, int BackgroundPercent, b
         state.HeaderBackgroundPercent = HeaderBackgroundPercent;
         state.OuterBorderPercent = OuterBorderPercent;
         state.BubbleAlignment = Alignment;
-        state.BubbleWidth = WidthMode;
+        state.BubbleWidth = BubbleWidthMode.Widget;
+        state.TagTextColor = TagTextColor; state.UrgentHighlight = UrgentHighlight; state.UrgentDays = UrgentDays; state.UrgentColor = UrgentColor;
         state.BubbleGap = BubbleGap;
         state.ScaleTextWithWindow = ScaleTextWithWindow;
         state.TextReferenceWidth = TextReferenceWidth; state.TextReferenceHeight = TextReferenceHeight;

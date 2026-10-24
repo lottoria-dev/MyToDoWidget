@@ -5,7 +5,7 @@ namespace MyToDoWidget.Services;
 internal sealed class WindowsStartup : IStartupRegistrationStore
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string ValueName = BuildIdentity.StateFolder;
+    private const string ValueName = BuildIdentity.StartupValueName;
 
     internal static StartupRegistration Registration { get; } = new(new WindowsStartup());
 
@@ -35,6 +35,6 @@ internal sealed class WindowsStartup : IStartupRegistrationStore
     {
         try { Registration.RefreshExistingPath(Environment.ProcessPath); return null; }
         catch (Exception ex) when (ex is not OutOfMemoryException)
-        { return "자동 실행 경로를 확인하거나 갱신하지 못했습니다. 설정 → 연결·동작에서 확인해 주세요."; }
+        { return "자동 실행 경로를 확인하거나 갱신하지 못했습니다. 설정 → 동작에서 확인해 주세요."; }
     }
 }

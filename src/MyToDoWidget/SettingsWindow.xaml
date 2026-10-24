@@ -3,9 +3,9 @@
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:controls="clr-namespace:MyToDoWidget.Controls"
  xmlns:core="clr-namespace:MyToDoWidget.Core;assembly=MyToDoWidget.Core"
- Title="MyToDo 설정" Width="520" Height="740" MinWidth="460" MinHeight="520"
- WindowStartupLocation="CenterOwner" ResizeMode="CanResize" ShowInTaskbar="False"
- Background="{DynamicResource PanelBrush}" Icon="Assets/app.ico" Closing="Window_Closing">
+ Title="MyToDo2 설정" Width="520" Height="740" MinWidth="460" MinHeight="520"
+ WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+ Background="{DynamicResource PanelBrush}" Icon="Assets/app.ico" Closing="Window_Closing" PreviewKeyDown="Settings_KeyDown">
  <Window.Resources>
   <Style x:Key="ScrollPageButton" TargetType="RepeatButton">
    <Setter Property="Focusable" Value="False"/><Setter Property="IsTabStop" Value="False"/>
@@ -60,23 +60,16 @@
         </ControlTemplate></Setter.Value></Setter>
        </Style></Setter.Value></Setter>
    <Setter Property="ItemTemplate"><Setter.Value><DataTemplate>
-        <Border Background="{Binding BackgroundBrush}" CornerRadius="5" Padding="3,9">
+        <Border Background="{Binding BackgroundBrush}" CornerRadius="5" Padding="3,4">
          <TextBlock Text="{Binding Name}" Foreground="{Binding ForegroundBrush}" TextAlignment="Center" FontSize="11"/>
         </Border>
        </DataTemplate></Setter.Value></Setter>
   </Style>
 
-  <Style TargetType="TextBox">
-   <Setter Property="Background" Value="{DynamicResource FieldBrush}"/><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-   <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/><Setter Property="Padding" Value="8,6"/>
-   <Setter Property="VerticalContentAlignment" Value="Center"/>
-  </Style>
-  <Style TargetType="ComboBox">
-   <Setter Property="Foreground" Value="#23313C"/><Setter Property="Background" Value="White"/>
-   <Setter Property="MinHeight" Value="30"/><Setter Property="Padding" Value="6,4"/>
-   <Setter Property="MaxDropDownHeight" Value="240"/><Setter Property="IsTextSearchEnabled" Value="True"/>
-  </Style>
-  <Style TargetType="ComboBoxItem"><Setter Property="Foreground" Value="#23313C"/><Setter Property="Background" Value="White"/></Style>
+  <Style TargetType="TextBox" BasedOn="{StaticResource FormTextBox}"/>
+  <Style TargetType="PasswordBox" BasedOn="{StaticResource FormPasswordBox}"/>
+  <Style TargetType="ComboBox" BasedOn="{StaticResource FormComboBox}"/>
+  <Style TargetType="ComboBoxItem" BasedOn="{StaticResource FormComboBoxItem}"/>
   <DataTemplate x:Key="ChoiceItemTemplate">
    <TextBlock Text="{Binding Label}" Foreground="#23313C"/>
   </DataTemplate>
@@ -94,7 +87,7 @@
    <Setter Property="FontSize" Value="12"/>
    <Setter Property="Foreground" Value="{DynamicResource TabTextBrush}"/>
    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabItem">
-    <Border x:Name="TabBorder" Padding="9,8" CornerRadius="8,8,0,0" Background="{DynamicResource TabBrush}" Margin="0,0,3,0">
+    <Border x:Name="TabBorder" Padding="9,4" CornerRadius="8,8,0,0" Background="{DynamicResource TabBrush}" Margin="0,0,3,0">
      <TextBlock Text="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center"/>
     </Border>
     <ControlTemplate.Triggers><Trigger Property="IsSelected" Value="True">
@@ -107,7 +100,7 @@
    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabControl">
     <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
      <TabPanel IsItemsHost="True"/>
-     <Border Grid.Row="1" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0,8,8,8" Padding="12">
+     <Border Grid.Row="1" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="0,8,8,8" Padding="12,8">
       <ContentPresenter x:Name="PART_SelectedContentHost" ContentSource="SelectedContent"/>
      </Border>
     </Grid>
@@ -116,23 +109,75 @@
  </Window.Resources>
  <Grid Margin="18">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-  <StackPanel x:Name="PreviewPanel" Margin="0,0,0,14">
-   <TextBlock Text="말풍선 미리보기" FontSize="16" FontWeight="SemiBold"/>
-   <Border x:Name="SampleSurface" Background="{DynamicResource FieldBrush}" CornerRadius="10" Padding="10" Margin="0,9,0,6" MinHeight="84">
-    <ScrollViewer Style="{StaticResource SettingsScrollViewer}" MaxHeight="180">
-     <StackPanel>
-      <controls:SpeechBubble x:Name="SampleBubble" HorizontalAlignment="Left">
-       <TextBlock x:Name="SampleText" Text="메모 미리보기 Aa 123" TextWrapping="Wrap"/>
-      </controls:SpeechBubble>
-      <controls:SpeechBubble x:Name="SampleBubbleNext" HorizontalAlignment="Left">
-       <TextBlock x:Name="SampleTextNext" Text="다음 메모" TextWrapping="Wrap"/>
-      </controls:SpeechBubble>
+  <TextBlock Text="모양과 색상은 위젯에 바로 반영됩니다. 취소하면 원래대로 돌아갑니다." FontSize="11" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+  <TabControl x:Name="EditorPanel" Grid.Row="1">
+   <TabItem x:Name="GuideTab" Header="시트 연결">
+    <ScrollViewer Style="{StaticResource SettingsScrollViewer}"><StackPanel Margin="0,0,8,0">
+     <TextBlock x:Name="ConnectionStatus" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+     <WrapPanel Margin="0,0,0,6">
+      <RadioButton x:Name="NewSetupRadio" GroupName="SetupMode" Content="처음 설정해요" Checked="GuideMode_Checked" Margin="0,0,14,4"/>
+      <RadioButton x:Name="ExistingCodeRadio" GroupName="SetupMode" Content="전용 코드가 있어요" Checked="GuideMode_Checked" Margin="0,0,0,4"/>
+     </WrapPanel>
+     <TextBlock x:Name="SetupProgressText" FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,8"/>
+     <StackPanel x:Name="SetupStepsPanel">
+      <Expander x:Name="SetupStep1" IsExpanded="True" Background="#F1F8FC" Padding="8,5" Margin="0,0,0,7">
+       <Expander.Header><StackPanel Orientation="Horizontal"><TextBlock Text="1  내 시트 만들기" FontWeight="SemiBold"/><TextBlock x:Name="SetupStep1State" Margin="10,0,0,0" FontSize="11" Foreground="{DynamicResource MutedBrush}"/></StackPanel></Expander.Header>
+       <StackPanel Margin="0,7,0,0">
+        <TextBlock Text="본인 Google 계정으로 로그인해 빈 시트를 만듭니다." TextWrapping="Wrap"/>
+        <Button Content="새 시트 만들기" Click="NewSheet_Click" HorizontalAlignment="Left" Margin="0,6,0,4"/>
+        <TextBlock Text="시트가 열리면 이 창으로 돌아와 아래 버튼을 누르세요." FontSize="11" TextWrapping="Wrap"/>
+        <Button x:Name="ConfirmSheetButton" Content="시트가 열렸어요 → 다음" Click="ConfirmSheet_Click" HorizontalAlignment="Left" Margin="0,5,0,0"/>
+       </StackPanel>
+      </Expander>
+      <Expander x:Name="SetupStep2" Background="#F1F8FC" Padding="8,5" Margin="0,0,0,7">
+       <Expander.Header><StackPanel Orientation="Horizontal"><TextBlock Text="2  설치 코드 붙여넣기 · 실행" FontWeight="SemiBold"/><TextBlock x:Name="SetupStep2State" Margin="10,0,0,0" FontSize="11" Foreground="{DynamicResource MutedBrush}"/></StackPanel></Expander.Header>
+       <StackPanel Margin="0,7,0,0">
+        <Button x:Name="CopyInstallerButton" Content="설치 코드 복사" Click="CopyInstaller_Click" HorizontalAlignment="Left" Margin="0,0,0,6" ToolTip="새 시트의 Apps Script에 붙여넣을 전체 설치 코드"/>
+        <TextBlock Text="시트 상단: 확장 프로그램 → Apps Script" TextWrapping="Wrap" Margin="0,0,0,4"/>
+        <TextBlock Text="Code.gs: Ctrl+A → Ctrl+V → Ctrl+S" TextWrapping="Wrap" Margin="0,0,0,4"/>
+        <TextBlock Text="함수 목록: setupMyToDo → 실행 → 본인 계정으로 권한 승인" TextWrapping="Wrap" Margin="0,0,0,4"/>
+        <TextBlock Text="다른 파일을 만들거나 appsscript.json을 수정할 필요가 없습니다." FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"/>
+        <Expander Header="권한 승인 화면에서 막혔나요?" Margin="0,5,0,3"><TextBlock Text="본인 계정에 방금 만든 프로젝트인지 먼저 확인하세요. 확인되지 않은 앱 화면이 나오면 고급 → 해당 프로젝트로 이동 → 허용을 진행합니다. 진행이 차단되면 계정·조직 정책을 확인하세요." FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0"/></Expander>
+        <TextBlock Text="시트로 돌아가 MyToDo2 메뉴가 생겼으면 완료입니다." FontSize="11" TextWrapping="Wrap"/>
+        <Button x:Name="ConfirmInstallButton" Content="MyToDo2 메뉴가 보여요 → 다음" Click="ConfirmInstall_Click" HorizontalAlignment="Left" Margin="0,5,0,0"/>
+       </StackPanel>
+      </Expander>
+      <Expander x:Name="SetupStep3" Background="#F1F8FC" Padding="8,5" Margin="0,0,0,7">
+       <Expander.Header><StackPanel Orientation="Horizontal"><TextBlock Text="3  웹 앱 배포" FontWeight="SemiBold"/><TextBlock x:Name="SetupStep3State" Margin="10,0,0,0" FontSize="11" Foreground="{DynamicResource MutedBrush}"/></StackPanel></Expander.Header>
+       <StackPanel Margin="0,7,0,0">
+        <TextBlock Text="Apps Script 오른쪽 위: 배포 → 새 배포" TextWrapping="Wrap" Margin="0,0,0,4"/>
+        <TextBlock Text="유형 선택(톱니바퀴) → 웹 앱" TextWrapping="Wrap" Margin="0,0,0,4"/>
+        <TextBlock Text="다음 사용자로 실행: 나 / 액세스 권한: 모든 사용자 → 배포" TextWrapping="Wrap" Margin="0,0,0,4"/>
+        <TextBlock Text="완료 창: 웹 앱 → URL → 복사" TextWrapping="Wrap"/>
+        <TextBlock Text="끝이 /exec인 웹 앱 URL을 복사하세요. 배포 ID는 사용하지 않습니다." FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0"/>
+        <Button x:Name="ConfirmDeployButton" Content="웹 앱 URL을 복사했어요 → 다음" Click="ConfirmDeploy_Click" HorizontalAlignment="Left" Margin="0,5,0,0"/>
+       </StackPanel>
+      </Expander>
      </StackPanel>
-    </ScrollViewer>
-   </Border>
-   <TextBlock Text="바꾸면 위젯에도 바로 표시됩니다. 취소하면 원래대로 돌아갑니다." FontSize="11" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"/>
-  </StackPanel>
-  <TabControl x:Name="EditorPanel" Grid.Row="1" SelectionChanged="EditorPanel_SelectionChanged">
+     <Border x:Name="ConnectionEntryPanel" Background="#EAF6FC" CornerRadius="8" Padding="10,6" Margin="0,0,0,8"><StackPanel>
+      <TextBlock x:Name="SetupConnectionHeader" Text="4  전용 코드 만들고 연결" FontWeight="SemiBold"/>
+      <Expander x:Name="ConnectionCodeHelp" Header="전용 코드를 만드는 위치" Margin="0,5,0,4"><StackPanel Margin="0,5,0,0">
+       <TextBlock Text="시트 상단: MyToDo2 → 위젯 연결" TextWrapping="Wrap"/>
+       <TextBlock Text="웹 앱 URL 붙여넣기 → 전용 코드 만들기 → 전용 코드 복사" TextWrapping="Wrap" Margin="0,4,0,0"/>
+      </StackPanel></Expander>
+      <PasswordBox x:Name="ConnectionCodeBox" MaxLength="4096" PasswordChanged="ConnectionCode_Changed" Margin="0,4,0,6" AutomationProperties.Name="전용 연결 코드"/>
+      <WrapPanel>
+       <Button Content="코드 붙여넣기" Click="PasteConnection_Click" Margin="0,0,6,5"/>
+       <Button Content="코드 파일 불러오기" Click="LoadConnectionFile_Click" Margin="0,0,6,5"/>
+       <Button x:Name="ConnectButton" Content="연결하기" Style="{StaticResource PrimaryButton}" Click="Connect_Click" IsEnabled="False" Margin="0,0,0,5"/>
+      </WrapPanel>
+      <TextBlock Text="올바른 전용 코드를 넣으면 연결하기가 활성화됩니다. 실제 접속은 누른 뒤 확인합니다." FontSize="11" TextWrapping="Wrap"/>
+      <TextBlock Text="다른 PC도 같은 코드를 사용합니다. 코드는 암호처럼 보관하세요." FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0"/>
+     </StackPanel></Border>
+     <TextBlock x:Name="GuideFeedback" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" FontSize="11" Margin="0,0,0,5"/>
+     <WrapPanel>
+      <Button Content="안내 처음부터" Click="ResetGuide_Click" ToolTip="안내 진행만 초기화합니다. 메모와 연결정보는 유지됩니다." Margin="0,0,6,4"/>
+      <Button x:Name="RemoveButton" Content="이 PC 연결 해제" Click="Remove_Click" Margin="0,0,6,4"/>
+      <Button Content="구글 시트 목록" Click="GuideSheets_Click" Margin="0,0,0,4"/>
+     </WrapPanel>
+     <TextBlock Text="시트의 공유는 ‘제한됨’으로 유지하세요. 연결 전에는 이 PC에만 저장합니다." FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" Margin="0,4,0,0"/>
+    </StackPanel></ScrollViewer>
+   </TabItem>
    <TabItem x:Name="BubbleTab" Header="말풍선">
     <ScrollViewer Style="{StaticResource SettingsScrollViewer}">
      <StackPanel Margin="0,0,8,0">
@@ -141,12 +186,7 @@
        <StackPanel><TextBlock Text="모양" Margin="0,0,0,6"/><ComboBox x:Name="ShapeCombo" ItemTemplate="{StaticResource ChoiceItemTemplate}" TextSearch.TextPath="Label" SelectedValuePath="Value" SelectionChanged="Choice_Changed" AutomationProperties.Name="말풍선 모양"/></StackPanel>
        <StackPanel Grid.Column="2"><TextBlock Text="꼬리" Margin="0,0,0,6"/><ComboBox x:Name="TailCombo" ItemTemplate="{StaticResource ChoiceItemTemplate}" TextSearch.TextPath="Label" SelectedValuePath="Value" SelectionChanged="Choice_Changed" AutomationProperties.Name="말풍선 꼬리"/></StackPanel>
       </Grid>
-      <Grid Margin="0,0,0,8">
-       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-       <StackPanel><TextBlock Text="정렬" Margin="0,0,0,6"/><ComboBox x:Name="AlignmentCombo" ItemTemplate="{StaticResource ChoiceItemTemplate}" TextSearch.TextPath="Label" SelectedValuePath="Value" SelectionChanged="Choice_Changed" AutomationProperties.Name="말풍선 정렬"/></StackPanel>
-       <StackPanel Grid.Column="2"><TextBlock Text="가로 폭" Margin="0,0,0,6"/><ComboBox x:Name="WidthModeCombo" ItemTemplate="{StaticResource ChoiceItemTemplate}" TextSearch.TextPath="Label" SelectedValuePath="Value" SelectionChanged="Choice_Changed" AutomationProperties.Name="말풍선 가로 폭"/></StackPanel>
-      </Grid>
-      <TextBlock x:Name="LayoutHint" TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,12"/>
+      <TextBlock Text="메모와 일정 모두 위젯 폭에 맞춘 고정폭으로 표시합니다." TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,12"/>
       <Grid><TextBlock Text="말풍선 사이 간격"/><TextBlock x:Name="GapValue" HorizontalAlignment="Right"/></Grid>
       <Slider x:Name="GapSlider" Minimum="0" Maximum="40" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,8,0,4" ValueChanged="Slider_Changed" AutomationProperties.Name="말풍선 수직 간격"/>
       <Grid Margin="0,0,0,14"><TextBlock Text="0 · 붙이기" FontSize="11" Foreground="{DynamicResource MutedBrush}"/><TextBlock Text="40 · 넓게" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource MutedBrush}"/></Grid>
@@ -157,7 +197,7 @@
        <StackPanel>
         <TextBlock Text="배경색" Margin="0,0,0,6"/>
         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="34"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-         <Button Padding="5" Margin="0,0,6,0" MinHeight="30" Click="BackgroundColor_Click" ToolTip="말풍선 배경색 선택" AutomationProperties.Name="말풍선 배경색 선택">
+         <Button Padding="5,2" Margin="0,0,6,0" MinHeight="26" Click="BackgroundColor_Click" ToolTip="말풍선 배경색 선택" AutomationProperties.Name="말풍선 배경색 선택">
           <Border x:Name="BackgroundSwatch" Width="16" Height="16" CornerRadius="3" BorderThickness="1" BorderBrush="{DynamicResource LineBrush}"/>
          </Button>
          <TextBox x:Name="BackgroundHex" Grid.Column="1" MaxLength="7" FontSize="12" TextChanged="ColorText_Changed" AutomationProperties.Name="말풍선 배경색 HEX"/>
@@ -166,7 +206,7 @@
        <StackPanel Grid.Column="2">
         <TextBlock Text="글자색" Margin="0,0,0,6"/>
         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="34"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-         <Button Padding="5" Margin="0,0,6,0" MinHeight="30" Click="TextColor_Click" ToolTip="메모 글자색 선택" AutomationProperties.Name="메모 글자색 선택">
+         <Button Padding="5,2" Margin="0,0,6,0" MinHeight="26" Click="TextColor_Click" ToolTip="메모 글자색 선택" AutomationProperties.Name="메모 글자색 선택">
           <Border x:Name="TextSwatch" Width="16" Height="16" CornerRadius="3" BorderThickness="1" BorderBrush="{DynamicResource LineBrush}"/>
          </Button>
          <TextBox x:Name="TextHex" Grid.Column="1" MaxLength="7" FontSize="12" TextChanged="ColorText_Changed" AutomationProperties.Name="메모 글자색 HEX"/>
@@ -174,6 +214,29 @@
        </StackPanel>
       </Grid>
       <TextBlock Text="색상 칸을 누르거나 #RRGGBB로 입력합니다. 테마는 두 색을 함께 바꿉니다." FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" Margin="0,6,0,14"/>
+      <Grid Margin="0,0,0,14">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <StackPanel><TextBlock Text="해시태그 글자색" Margin="0,0,0,6"/>
+        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="34"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+         <Button Click="TagColor_Click" Padding="5,2" Margin="0,0,6,0" ToolTip="해시태그 색 선택"><Border x:Name="TagSwatch" Width="16" Height="16" CornerRadius="3"/></Button>
+         <TextBox x:Name="TagHex" Grid.Column="1" MaxLength="7" TextChanged="ExtraColor_Changed" AutomationProperties.Name="해시태그 색 HEX"/>
+        </Grid>
+       </StackPanel>
+       <TextBlock Grid.Column="2" Text="본문 속 #태그와 태그 목록에 적용됩니다. 항목별 배경색은 각 메모·일정의 편집에서 선택하세요." FontSize="11" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{DynamicResource MutedBrush}"/>
+      </Grid>
+      <Border Background="#F1F8FC" CornerRadius="8" Padding="10,6" Margin="0,0,0,14"><StackPanel>
+       <CheckBox x:Name="UrgentCheck" Content="임박한 일정 배경 강조" Checked="Appearance_Changed" Unchecked="Appearance_Changed"/>
+       <Grid Margin="0,6,0,5"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <StackPanel><TextBlock Text="오늘부터"/><ComboBox x:Name="UrgentDaysCombo" SelectedValuePath="Value" DisplayMemberPath="Label" SelectionChanged="Choice_Changed" Margin="0,5,0,0"/></StackPanel>
+        <StackPanel Grid.Column="2"><TextBlock Text="강조 배경색"/>
+         <Grid Margin="0,5,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="34"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <Button Click="UrgentColor_Click" Padding="5,2" Margin="0,0,6,0" ToolTip="임박 일정 배경색 선택"><Border x:Name="UrgentSwatch" Width="16" Height="16" CornerRadius="3"/></Button>
+          <TextBox x:Name="UrgentHex" Grid.Column="1" MaxLength="7" TextChanged="ExtraColor_Changed" AutomationProperties.Name="임박 일정 배경색 HEX"/>
+         </Grid>
+        </StackPanel>
+       </Grid>
+       <TextBlock Text="미완료 일정에 적용하며 항목별 색상보다 우선합니다. 완료하거나 기간을 벗어나면 항목별 색상으로 돌아갑니다. 지난 날짜는 강조하지 않습니다." FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}"/>
+      </StackPanel></Border>
       <Grid><TextBlock Text="말풍선 불투명도"/><TextBlock x:Name="BubbleOpacityValue" HorizontalAlignment="Right"/></Grid>
       <Slider x:Name="BubbleOpacitySlider" Minimum="0" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,8,0,4" ValueChanged="Slider_Changed" AutomationProperties.Name="말풍선 배경 불투명도" ToolTip="말풍선 배경만 조절합니다. 상단바 배경과 흰색 테두리는 유리판 탭에서 따로 조절합니다."/>
       <Grid Margin="0,0,0,14"><TextBlock Text="0% 완전 투명" FontSize="11" Foreground="{DynamicResource MutedBrush}"/><TextBlock Text="100% 완전 불투명" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource MutedBrush}"/></Grid>
@@ -186,14 +249,14 @@
          <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding DisplayName}" Foreground="#23313C" TextTrimming="CharacterEllipsis" MaxWidth="300"/></DataTemplate></ComboBox.ItemTemplate>
          <ComboBox.GroupStyle><GroupStyle>
           <GroupStyle.HeaderTemplate><DataTemplate>
-           <TextBlock Text="{Binding Name}" FontSize="11" FontWeight="SemiBold" Foreground="#17617B" Background="#E4F4FB" Padding="6,6"/>
+           <TextBlock Text="{Binding Name}" FontSize="11" FontWeight="SemiBold" Foreground="#17617B" Background="#E4F4FB" Padding="6,2"/>
           </DataTemplate></GroupStyle.HeaderTemplate>
          </GroupStyle></ComboBox.GroupStyle>
         </ComboBox>
        </StackPanel>
        <StackPanel Grid.Column="2">
         <Grid Margin="0,0,0,6"><TextBlock Text="기준 크기"/><TextBlock x:Name="FontValue" HorizontalAlignment="Right"/></Grid>
-        <Slider x:Name="FontSlider" Minimum="11" Maximum="36" TickFrequency="1" IsSnapToTickEnabled="True" Height="30" VerticalAlignment="Center" ValueChanged="Slider_Changed" AutomationProperties.Name="메모 글자 크기"/>
+        <Slider x:Name="FontSlider" Minimum="11" Maximum="36" TickFrequency="1" IsSnapToTickEnabled="True" Height="26" VerticalAlignment="Center" ValueChanged="Slider_Changed" AutomationProperties.Name="메모 글자 크기"/>
        </StackPanel>
       </Grid>
       <CheckBox x:Name="ScaleTextCheck" Content="창 크기에 맞춰 메모 글자 확대·축소" Checked="Appearance_Changed" Unchecked="Appearance_Changed"/>
@@ -213,11 +276,11 @@
       <ListBox x:Name="GlassThemeList" Style="{StaticResource ColorThemeList}" SelectionChanged="GlassTheme_Changed" AutomationProperties.Name="유리판 색상 테마"/>
       <Grid Margin="0,10,0,0">
        <Grid.ColumnDefinitions><ColumnDefinition Width="34"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-       <Button Padding="5" Margin="0,0,6,0" MinHeight="30" Click="GlassColor_Click" ToolTip="유리판 배경색 선택" AutomationProperties.Name="유리판 배경색 선택">
+       <Button Padding="5,2" Margin="0,0,6,0" MinHeight="26" Click="GlassColor_Click" ToolTip="유리판 배경색 선택" AutomationProperties.Name="유리판 배경색 선택">
         <Border x:Name="GlassSwatch" Width="16" Height="16" CornerRadius="3" BorderThickness="1" BorderBrush="{DynamicResource LineBrush}"/>
        </Button>
        <TextBox x:Name="GlassHex" Grid.Column="1" MaxLength="7" TextChanged="GlassColorText_Changed" AutomationProperties.Name="유리판 배경색 HEX"/>
-       <Button Grid.Column="2" Content="기본색" Margin="8,0,0,0" Padding="10,5" Click="GlassReset_Click" ToolTip="유리판의 기본색으로 되돌리기"/>
+       <Button Grid.Column="2" Content="기본색" Margin="8,0,0,0" Padding="10,2" Click="GlassReset_Click" ToolTip="유리판의 기본색으로 되돌리기"/>
       </Grid>
       <TextBlock x:Name="GlassColorHint" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,6,0,16" TextWrapping="Wrap"/>
       <Grid><TextBlock Text="유리판 불투명도"/><TextBlock x:Name="GlassOpacityValue" HorizontalAlignment="Right"/></Grid>
@@ -229,98 +292,83 @@
       <Grid Margin="0,18,0,0"><TextBlock Text="흰색 테두리 불투명도"/><TextBlock x:Name="BorderOpacityValue" HorizontalAlignment="Right"/></Grid>
       <Slider x:Name="BorderOpacitySlider" Minimum="0" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" Margin="0,10,0,6" ValueChanged="Slider_Changed" AutomationProperties.Name="흰색 테두리 불투명도"/>
       <Grid><TextBlock Text="0% 숨김" FontSize="11" Foreground="{DynamicResource MutedBrush}"/><TextBlock Text="100% 완전 불투명" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource MutedBrush}"/></Grid>
-      <TextBlock Text="유리판·상단바 배경·흰색 테두리를 각각 조절합니다. 제목과 버튼은 선명하게 유지합니다." TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,14,0,10"/>
-      <TextBlock Text="환경설정창은 밝은 테마로 표시됩니다. 유리판 색상은 위에서 따로 선택하세요." TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,6,0,10"/>
       <CheckBox x:Name="GlassCheck" Content="유리판에 은은한 빛 반사" Checked="Appearance_Changed" Unchecked="Appearance_Changed"/>
      </StackPanel>
     </ScrollViewer>
    </TabItem>
-   <TabItem x:Name="ConnectionTab" Header="연결·동작">
-    <ScrollViewer Style="{StaticResource SettingsScrollViewer}">
-     <StackPanel Margin="0,0,8,0">
-      <TextBlock x:Name="ConnectionStatus" FontWeight="SemiBold" FontSize="15"/>
-      <TextBlock Text="저장된 주소는 표시하지 않습니다." Foreground="{DynamicResource MutedBrush}" Margin="0,6,0,14"/>
-      <Border Background="#FFF5DF" BorderBrush="#E9C484" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,14">
-       <StackPanel>
-        <TextBlock Text="민감한 메모 입력 비권장" Foreground="#704515" FontWeight="SemiBold" Margin="0,0,0,5"/>
-        <TextBlock Text="{x:Static core:SheetSource.PrivacyWarning}" Foreground="#704515" FontSize="12" TextWrapping="Wrap"/>
-       </StackPanel>
-      </Border>
-      <TextBlock Text="새 주소 등록 / 교체" Margin="0,0,0,7"/>
-      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-       <PasswordBox x:Name="NewAddressBox" MaxLength="8192" PasswordChanged="Address_Changed" AutomationProperties.Name="새 Google Sheets 공유 주소"/>
-       <Button Grid.Column="1" Content="붙여넣기" Margin="8,0,0,0" Click="Paste_Click"/>
+   <TabItem x:Name="ConnectionTab" Header="동작">
+    <ScrollViewer Style="{StaticResource SettingsScrollViewer}"><StackPanel Margin="0,0,8,0">
+      <Grid>
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <StackPanel><TextBlock Text="항목의 기본 보기 단계"/><ComboBox x:Name="PreviewLinesCombo" SelectedValuePath="Tag" Margin="0,6,0,0"><ComboBoxItem Content="1줄" Tag="1"/><ComboBoxItem Content="2줄" Tag="2"/><ComboBoxItem Content="전체" Tag="3"/></ComboBox></StackPanel>
+       <StackPanel Grid.Column="2"><TextBlock Text="정기 동기화 간격"/><ComboBox x:Name="SyncIntervalCombo" DisplayMemberPath="Label" SelectedValuePath="Value" Margin="0,6,0,0"/></StackPanel>
       </Grid>
-      <TextBlock Text="‘링크가 있는 모든 사용자 · 뷰어’로 설정한 일반 공유 주소를 입력하세요. 메모 탭을 연 브라우저 주소도 사용할 수 있습니다.&#x0a;빈칸으로 저장하면 기존 연결을 유지합니다." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" FontSize="11" Margin="0,8,0,0"/>
-      <Button x:Name="RemoveButton" Content="연결 해제" HorizontalAlignment="Left" Padding="10,5" Margin="0,12,0,18" Click="Remove_Click"/>
-      <CheckBox x:Name="TopmostCheck" Content="항상 위에 표시"/>
-      <CheckBox x:Name="LockCheck" Content="위치와 크기 잠금"/>
+      <TextBlock Text="지금 동기화: 상단 ↻ 버튼 · F5 · 우클릭 → 지금 동기화" Style="{StaticResource GuideBody}" Margin="0,9,0,12"/>
+      <CheckBox x:Name="NotificationsCheck" Content="이 PC에서 지정한 알림 표시"/>
+      <CheckBox x:Name="TopmostCheck" Content="항상 위에 표시"/><CheckBox x:Name="LockCheck" Content="위치와 크기 잠금"/>
       <CheckBox x:Name="StartWithWindowsCheck" Content="Windows 시작 시 자동 실행"/>
-      <TextBlock x:Name="StartWithWindowsHint" Text="저장하면 현재 Windows 계정에 적용됩니다. 기본값은 꺼짐입니다.&#x0a;Windows의 시작 앱에서 차단했다면 그곳에서도 사용으로 바꿔 주세요." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" FontSize="11" Margin="20,5,0,8"/>
-      <CheckBox x:Name="StartupCheck" Content="실행할 때 한 번 새로고침"/>
-      <TextBlock Text="위젯 우클릭: 설정 / 구글 시트 열기&#x0a;말풍선 더블클릭: 구글 시트 목록 열기&#x0a;접기·펼치기: 상태에 따라 아이콘이 바뀌는 버튼&#x0a;상단 ▲ ▼: 스크롤, 길게 누르면 연속 이동&#x0a;최소화: 위젯을 트레이로 숨기기" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,20,0,0"/>
-      <Button Content="간편 설정 및 사용법 보기" HorizontalAlignment="Left" Margin="0,14,0,0" Click="ShowGuide_Click"/>
+      <TextBlock x:Name="StartWithWindowsHint" Visibility="Collapsed" Style="{StaticResource GuideBody}" Margin="20,5,0,8"/>
+      <TextBlock Text="프로그램 실행 시 연결된 시트를 1회 동기화합니다." Style="{StaticResource GuideBody}"/>
+      <Border Background="#F1F8FC" CornerRadius="8" Padding="12,8" Margin="0,14,0,0"><StackPanel>
+       <TextBlock Text="본문을 붙여넣을 앱" FontWeight="SemiBold"/>
+       <TextBlock Text="선택한 메모 서비스를 웹 브라우저로 엽니다." Style="{StaticResource GuideBody}" Margin="0,5,0,9"/>
+       <ComboBox x:Name="NoteAppCombo" ItemTemplate="{StaticResource ChoiceItemTemplate}" SelectedValuePath="Value" AutomationProperties.Name="본문을 붙여넣을 웹 서비스" ToolTip="우클릭 메뉴에서 메모를 복사하고 선택한 웹사이트를 엽니다."/>
+      </StackPanel></Border>
+      <Button Content="초기 연결 안내 보기" HorizontalAlignment="Left" Margin="0,14,0,0" Click="ShowGuide_Click"/>
      </StackPanel>
     </ScrollViewer>
    </TabItem>
-   <TabItem x:Name="GuideTab" Header="간편 설정 및 사용법">
-    <ScrollViewer Style="{StaticResource SettingsScrollViewer}">
-     <StackPanel Margin="0,0,8,0">
-      <TextBlock Text="구글 시트 연결, 한 번만 설정하세요" Style="{StaticResource GuideHeading}" Margin="0,0,0,8"/>
-      <TextBlock Text="메모는 구글 시트에서 작성하고, 위젯에서는 새로고침 한 번으로 확인합니다." Style="{StaticResource GuideBody}"/>
-      <Border Background="#FFF5DF" BorderBrush="#E9C484" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,12">
-       <TextBlock Text="{x:Static core:SheetSource.PrivacyWarning}" Foreground="#704515" FontSize="12" TextWrapping="Wrap"/>
-      </Border>
-      <WrapPanel Margin="0,2,0,2">
-       <Button Content="구글 시트 열기" Padding="10,6" Margin="0,0,6,6" Click="GuideSheets_Click"/>
-       <Button Content="CSV 템플릿 저장" Padding="10,6" Margin="0,0,6,6" Click="SaveTemplate_Click"/>
-       <Button Content="연결 설정으로" Padding="10,6" Margin="0,0,0,6" Click="GoToConnection_Click"/>
-      </WrapPanel>
-      <TextBlock x:Name="GuideFeedback" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="11"/>
-      <TextBlock Text="1. 메모 시트 준비" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="메모 전용 스프레드시트 파일을 만듭니다. 위 버튼으로 CSV 템플릿을 저장한 뒤, 시트의 파일 → 가져오기 → 업로드에서 선택하면 예시가 들어갑니다. 공유 권한은 파일 전체에 적용되므로 다른 개인정보를 같은 파일에 넣지 마세요." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="2. A열에 자유롭게 작성" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="A열을 선택해 서식 → 숫자 → 일반 텍스트로 지정합니다. A1부터 셀 하나에 메모 하나를 적고 제목 행은 만들지 않습니다. 셀 안 줄바꿈은 Alt+Enter입니다. 날짜·기호·여러 줄을 그대로 적을 수 있습니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="템플릿을 가져올 때 숫자·날짜·수식으로 자동 변환하는 옵션이 보이면 해제하세요. B열 이후의 내용과 시트의 글꼴·색상은 위젯에 표시되지 않습니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="3. 링크가 있는 모든 사용자 · 뷰어" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="시트 오른쪽 위의 공유 → 일반 액세스에서 ‘링크가 있는 모든 사용자’를 선택하고 권한을 ‘뷰어’로 설정합니다. 완료 후 링크를 복사하세요. ‘웹에 게시’는 필요하지 않습니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="여러 탭이 있으면 메모 탭을 연 뒤 브라우저 주소를 복사하세요. 탭 번호가 없는 공유 링크는 첫 탭을 읽습니다. 위젯이 A열만 표시해도 링크를 아는 사람의 파일 열람 범위가 A열로 제한되지는 않습니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="4. 위젯에 주소 등록" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="‘연결 설정으로’를 누르고 새 주소 입력란에 일반 공유 주소를 붙여넣은 뒤 아래의 저장을 누릅니다. 연결을 확인하면 메모가 나타납니다. 저장된 주소는 다시 표시하지 않고 등록 여부만 보여 줍니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="5. 수정 후 새로고침" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="시트에서 메모를 수정한 뒤 위젯의 새로고침 또는 F5를 누릅니다. 다른 컴퓨터에서도 같은 일반 공유 주소를 한 번 등록하면 됩니다. 위젯에서 Google 계정으로 로그인할 필요는 없습니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="Windows 시작 시 자동 실행" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="연결·동작에서 ‘Windows 시작 시 자동 실행’을 켜고 저장하세요. 현재 Windows 계정으로 로그인할 때 위젯이 열립니다. 새 메모도 불러오려면 ‘실행할 때 한 번 새로고침’을 함께 켜세요. EXE를 옮긴 뒤 새 위치에서 한 번 실행하면 기존 등록 경로를 갱신합니다. 해제하려면 옵션을 끄고 저장하세요." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="이렇게 활용하세요" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="• 오늘 할 일: 셀마다 준비물·확인할 일을 하나씩 적기&#x0a;• 자유로운 날짜 메모: ‘10/2 오후’, ‘다음 주 중’처럼 적기&#x0a;• 긴 내용: 한 셀 안에서 여러 줄로 정리하기&#x0a;• 여러 컴퓨터: 같은 시트를 연결해 필요할 때 새로고침하기" Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="날짜·todo·done은 일반 글자로 표시합니다. 자동 정렬이나 완료 처리 기능은 제공하지 않습니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="위젯 조작" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="• 우클릭: 설정 / 구글 시트 열기 / 선택한 메모 복사&#x0a;• 말풍선 더블클릭: 브라우저의 구글 시트 목록 열기&#x0a;• 휠 또는 ▲ ▼: 메모 스크롤&#x0a;• 상단 끌기 / 가장자리 끌기: 이동 / 크기 조절&#x0a;• 접기·펼치기: 본문만 접기 / 이전 높이로 복원&#x0a;• 최소화: 트레이로 숨기기, 트레이 더블클릭으로 복원" Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="말풍선 꾸미기" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="말풍선 탭에서 왼쪽·가운데·오른쪽 정렬, 가로 폭과 간격을 고릅니다. ‘내용에 맞춤’은 짧은 메모를 작게 표시하고, ‘위젯 폭에 맞춤’은 모든 말풍선의 폭을 같게 맞춥니다. 꼬리 방향은 정렬과 별도로 선택합니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="연결이 안 되거나 내용이 늦게 바뀐다면" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="‘링크가 있는 모든 사용자 · 뷰어’, 메모 탭 주소와 A열을 확인하세요. 브라우저 로그아웃 상태에서도 시트를 볼 수 있어야 합니다. 다운로드 제한이나 조직 계정의 외부 공유 정책 때문에 연결되지 않을 수도 있습니다. 연결 실패 시 마지막 정상 메모를 유지합니다." Style="{StaticResource GuideBody}"/>
+   <TabItem x:Name="BackupTab" Header="백업">
+    <ScrollViewer Style="{StaticResource SettingsScrollViewer}"><StackPanel Margin="0,0,8,0">
+     <TextBlock Text="메모·일정 백업" Style="{StaticResource GuideHeading}"/>
+     <Grid Margin="0,6,0,14">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="1.2*"/><ColumnDefinition Width="1.4*"/><ColumnDefinition Width="0.8*"/></Grid.ColumnDefinitions>
+      <Button Content="JSON 백업 저장…" Click="ExportJson_Click" FontSize="12" Padding="5,3" Margin="0,0,5,0"/>
+      <Button Grid.Column="1" Content="JSON 백업 가져오기…" Click="ImportJson_Click" FontSize="12" Padding="5,3" Margin="0,0,5,0"/>
+      <Button Grid.Column="2" Content="CSV 저장…" Click="ExportCsv_Click" FontSize="12" Padding="5,3"/>
+     </Grid>
+     <StackPanel>
+      <TextBlock Text="• JSON 백업 저장: 로컬 PC에 데이터 백업(위젯 설정 유지)" Style="{StaticResource GuideBody}"/>
+      <TextBlock Text="• JSON 백업 가져오기: 로컬 PC 데이터 불러오기" Style="{StaticResource GuideBody}"/>
+      <TextBlock Text="• CSV 저장: 엑셀 등의 도구로 열어볼 수 있도록 변환" Style="{StaticResource GuideBody}"/>
+      <TextBlock Text="• 구글 시트 연결정보는 백업하지 않음" Style="{StaticResource GuideBody}" Margin="0,12,0,4"/>
+      <TextBlock Text="• 백업 파일은 암호화되지 않으므로 안전한 곳에 보관" Style="{StaticResource GuideBody}"/>
      </StackPanel>
-    </ScrollViewer>
+     <TextBlock x:Name="BackupFeedback" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+    </StackPanel></ScrollViewer>
    </TabItem>
    <TabItem x:Name="AboutTab" Header="정보">
-    <ScrollViewer Style="{StaticResource SettingsScrollViewer}">
-     <StackPanel Margin="0,0,8,0">
-      <StackPanel Orientation="Horizontal" Margin="0,4,0,14">
-       <Image Source="{StaticResource AboutAppIcon}" Width="40" Height="40" Margin="0,0,12,0" Stretch="Uniform" VerticalAlignment="Center" AutomationProperties.Name="MyToDo 아이콘"/>
-       <StackPanel><TextBlock Text="MyToDo" FontSize="20" FontWeight="SemiBold"/><TextBlock x:Name="AboutVersion" FontSize="12" Foreground="{DynamicResource MutedBrush}"/></StackPanel>
-      </StackPanel>
-      <TextBlock Text="구글 시트의 자유 메모를 바탕화면에서 읽는 작은 위젯입니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="공식 배포 페이지" Style="{StaticResource GuideHeading}"/>
-      <TextBlock x:Name="OfficialAddressText" Style="{StaticResource GuideBody}"/>
-      <Button Content="공식 배포 페이지 열기" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" Click="OfficialPage_Click"/>
-      <TextBlock Text="제작: MathTime&#x0a;라이선스: MIT&#x0a;© 2026 MathTime" Style="{StaticResource GuideBody}" Margin="0,18,0,12"/>
-      <TextBlock Text="연결과 보관" Style="{StaticResource GuideHeading}"/>
-      <TextBlock Text="위젯은 공유된 시트의 CSV를 읽으며 시트를 수정하거나 Google 로그인 정보를 저장하지 않습니다. 시트 작성·수정에 필요한 로그인은 브라우저에서 관리합니다. 연결 주소와 마지막 메모는 Windows 사용자별로 암호화해 보관하며, 이는 Google Sheets의 공유 권한을 바꾸지 않습니다." Style="{StaticResource GuideBody}"/>
-      <TextBlock Text="{x:Static core:SheetSource.PrivacyWarning}" Style="{StaticResource GuideBody}"/>
-      <Button Content="간편 설정 및 사용법 보기" HorizontalAlignment="Left" Margin="0,8,0,0" Click="ShowGuide_Click"/>
-     </StackPanel>
-    </ScrollViewer>
+    <ScrollViewer Style="{StaticResource SettingsScrollViewer}"><StackPanel MaxWidth="380" HorizontalAlignment="Center" Margin="0,12,8,0">
+     <Image Source="{StaticResource AboutAppIcon}" Width="86" Height="86" Margin="0,0,0,7"/>
+     <TextBlock Text="MyToDo2" FontSize="25" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+     <TextBlock x:Name="AboutVersion" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center" Margin="0,3,0,12"/>
+     <TextBlock Text="메모와 일정을 바탕화면 말풍선으로 확인하고 개인 Google 시트에 보관하는 Windows용 위젯입니다." TextWrapping="Wrap" TextAlignment="Center"/>
+     <TextBlock Text="© 2026 MathTime · Freeware" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+     <Button Content="https://mathtime.kr/mytodo.html" Click="AboutWebsite_Click" Margin="0,7,0,0" ToolTip="공식 배포 페이지 열기"/>
+     <Button Content="mathtime.ai@gmail.com" Click="AboutEmail_Click" Margin="0,7,0,0" ToolTip="개발자에게 이메일 보내기"/>
+    </StackPanel></ScrollViewer>
+   </TabItem>
+   <TabItem x:Name="DeveloperTab" Header="검토용 준비" Visibility="Collapsed">
+    <ScrollViewer Style="{StaticResource SettingsScrollViewer}"><StackPanel Margin="0,0,8,0">
+     <TextBlock Text="개발 미리보기 전용 · F12로 열기" FontWeight="SemiBold"/>
+      <Expander Header="배포 주소 확인·수정 (연결 오류 시)" Margin="0,3,0,12">
+       <StackPanel Margin="0,8,0,0">
+        <TextBlock Text="연결 정보를 먼저 입력한 뒤, 배포 관리 화면의 웹 앱 URL을 아래에 붙여넣으세요. 주소 일치 여부를 표시하며 기존 연결 키와 저장소 ID는 유지합니다." Style="{StaticResource GuideBody}"/>
+        <TextBlock Text="배포 관리 화면의 웹 앱 URL (/exec)"/>
+        <Grid Margin="0,5,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <PasswordBox x:Name="NewAddressBox" MaxLength="8192" PasswordChanged="Address_Changed" AutomationProperties.Name="새 Apps Script 배포 주소"/>
+         <Button Grid.Column="1" Content="붙여넣기" Margin="8,0,0,0" Click="Paste_Click"/>
+        </Grid>
+        <TextBlock x:Name="AddressMatchStatus" TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,10"/>
+        <TextBlock Text="등록한 연결 키"/>
+        <Grid Margin="0,5,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <PasswordBox x:Name="NewKeyBox" MaxLength="128" PasswordChanged="Address_Changed" AutomationProperties.Name="새 연결 키"/>
+         <Button Grid.Column="1" Content="붙여넣기" Margin="8,0,0,0" Click="PasteKey_Click"/>
+        </Grid>
+        <TextBlock Text="연결 정보를 입력했다면 위 연결 키 칸은 비워 두세요. 저장하면 위에 입력한 배포 주소로 연결을 확인합니다. 연결 정보 없이 주소·키를 따로 입력하는 방식은 내부 검토용입니다." Style="{StaticResource GuideBody}"/>
+       </StackPanel>
+      </Expander>
+    </StackPanel></ScrollViewer>
    </TabItem>
   </TabControl>
   <TextBlock x:Name="ErrorText" Grid.Row="2" TextWrapping="Wrap" Foreground="#9F3E22" Margin="0,10,0,10"/>
@@ -329,5 +377,8 @@
    <Button x:Name="SaveButton" Content="저장" Style="{StaticResource PrimaryButton}" IsDefault="True" Click="Save_Click"/>
    <Button x:Name="CancelButton" Grid.Column="2" Content="취소" IsCancel="True"/>
   </Grid>
+  <Thumb Grid.RowSpan="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="14" Height="14" Margin="0,0,-13,-13" Cursor="SizeNWSE" DragDelta="SettingsResize_DragDelta" ToolTip="끌어서 크기 조절" AutomationProperties.Name="설정창 크기 조절">
+   <Thumb.Template><ControlTemplate TargetType="Thumb"><Grid Background="Transparent"><Path Data="M4,11 L11,4 M8,11 L11,8" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1"/></Grid></ControlTemplate></Thumb.Template>
+  </Thumb>
  </Grid>
 </Window>

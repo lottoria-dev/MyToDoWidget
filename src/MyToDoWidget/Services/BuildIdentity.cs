@@ -1,16 +1,16 @@
+using System.Reflection;
+
 namespace MyToDoWidget.Services;
 
 internal static class BuildIdentity
 {
-#if MYTODO_TEST_BUILD
-    public const bool IsTest = true;
-    public const string StateFolder = "MyToDoWidget.Test";
-    public const string InstancePrefix = @"Local\MyToDoWidget.Test";
-    public const string DisplayName = "MyToDo (테스트)";
-#else
-    public const bool IsTest = false;
-    public const string StateFolder = "MyToDoWidget";
-    public const string InstancePrefix = @"Local\MyToDoWidget.0.1";
-    public const string DisplayName = "MyToDo";
-#endif
+    public static bool IsTest => false;
+    public const string StartupValueName = "MyToDoWidget.V2";
+    public static readonly string Version = PreviewProfile.VersionName(
+        typeof(BuildIdentity).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+        ?? throw new InvalidOperationException("프로그램 버전 정보가 없습니다."));
+    // Stable across regular updates; independent from 1.x and developer preview data.
+    public const string StateFolder = "MyToDoWidget.V2";
+    public const string InstancePrefix = @"Local\MyToDoWidget.V2";
+    public const string DisplayName = "MyToDo2";
 }

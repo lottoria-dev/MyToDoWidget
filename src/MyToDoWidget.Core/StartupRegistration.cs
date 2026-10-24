@@ -18,7 +18,7 @@ public sealed class StartupRegistration(IStartupRegistrationStore store)
             || executablePath.IndexOfAny(['"', '\r', '\n', '\0']) >= 0
             || !string.Equals(Path.GetExtension(executablePath), ".exe", StringComparison.OrdinalIgnoreCase)
             || string.Equals(Path.GetFileName(executablePath), "dotnet.exe", StringComparison.OrdinalIgnoreCase))
-            throw new MemoException("자동 실행은 MyToDoWidget.exe로 실행한 뒤 설정해 주세요.");
+            throw new MemoException("자동 실행은 MyToDo2.exe로 실행한 뒤 설정해 주세요.");
 
         string command = "\"" + executablePath + "\"";
         if (command.Length > 260)
