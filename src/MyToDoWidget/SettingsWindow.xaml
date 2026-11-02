@@ -342,6 +342,11 @@
      <Image Source="{StaticResource AboutAppIcon}" Width="86" Height="86" Margin="0,0,0,7"/>
      <TextBlock Text="MyToDo2" FontSize="25" FontWeight="SemiBold" HorizontalAlignment="Center"/>
      <TextBlock x:Name="AboutVersion" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center" Margin="0,3,0,12"/>
+     <WrapPanel HorizontalAlignment="Center" Margin="0,0,0,4">
+      <Button x:Name="CheckUpdateButton" Content="최신 업데이트 확인" Click="CheckUpdate_Click" Margin="0,0,6,4"/>
+      <Button x:Name="LatestReleaseButton" Content="릴리즈 페이지 열기" Click="LatestRelease_Click" Margin="0,0,0,4"/>
+     </WrapPanel>
+     <TextBlock x:Name="UpdateStatus" Text="버튼을 누르면 최신 정식 버전을 확인합니다." TextWrapping="Wrap" TextAlignment="Center" FontSize="11" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,12"/>
      <TextBlock Text="메모와 일정을 바탕화면 말풍선으로 확인하고 개인 Google 시트에 보관하는 Windows용 위젯입니다." TextWrapping="Wrap" TextAlignment="Center"/>
      <TextBlock Text="© 2026 MathTime · Freeware" HorizontalAlignment="Center" Margin="0,12,0,0"/>
      <Button Content="https://mathtime.kr/mytodo.html" Click="AboutWebsite_Click" Margin="0,7,0,0" ToolTip="공식 배포 페이지 열기"/>

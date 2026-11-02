@@ -22,6 +22,10 @@ public partial class SettingsWindow : Window
     private readonly bool _hasConnection;
     private readonly Action<int> _saveSetupProgress;
     private readonly SetupGuideProgress _setup;
+    private readonly ReleaseUpdateClient _updates = new();
+    private readonly CancellationTokenSource _updateLifetime = new();
+    private bool _updatesClosed;
+    private string _releasePage = ReleaseUpdateClient.ReleasesPage;
     private readonly bool _widgetLightTheme;
     private bool _remove, _saving, _ready, _updatingColors;
     private string _backgroundColor, _textColor, _tagColor, _urgentColor;
@@ -46,6 +50,11 @@ public partial class SettingsWindow : Window
         Theme.ApplySettings(Resources);
         _ = new DetachedWindowMovement(this);
         AboutVersion.Text = "Version " + BuildIdentity.Version;
+        Closed += (_, _) =>
+        {
+            _updatesClosed = true;
+            _updateLifetime.Cancel(); _updates.Dispose(); _updateLifetime.Dispose();
+        };
         ExistingCodeRadio.IsChecked = _setup.UseExistingCode;
         NewSetupRadio.IsChecked = !_setup.UseExistingCode;
         RenderSetupGuide();
@@ -302,6 +311,36 @@ public partial class SettingsWindow : Window
     }
     private void AboutWebsite_Click(object sender, RoutedEventArgs e) => OpenBrowser("https://mathtime.kr/mytodo.html");
     private void AboutEmail_Click(object sender, RoutedEventArgs e) => OpenBrowser("mailto:mathtime.ai@gmail.com");
+    private void LatestRelease_Click(object sender, RoutedEventArgs e) => OpenBrowser(_releasePage);
+
+    private async void CheckUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (!CheckUpdateButton.IsEnabled || _updatesClosed) return;
+        CheckUpdateButton.IsEnabled = false;
+        CheckUpdateButton.Content = "확인 중…";
+        UpdateStatus.Text = "GitHub의 최신 정식 버전을 확인합니다…";
+        CancellationToken cancellation = _updateLifetime.Token;
+        try
+        {
+            var update = await _updates.CheckAsync(BuildIdentity.Version, cancellation);
+            if (_updatesClosed) return;
+            _releasePage = update.Page.AbsoluteUri;
+            UpdateStatus.Text = update.Comparison > 0 ? $"새 버전 {update.Tag}이 있습니다."
+                : update.Comparison == 0 ? $"최신 버전입니다. ({update.Tag})"
+                : $"현재 버전이 공개된 정식 버전({update.Tag})보다 앞서 있습니다.";
+            LatestReleaseButton.Content = update.Comparison > 0 ? $"{update.Tag} 릴리즈 열기" : "릴리즈 페이지 열기";
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            if (!_updatesClosed)
+                UpdateStatus.Text = ex is MemoException ? ex.Message : "업데이트 확인에 실패했습니다. 릴리즈 페이지에서 확인하세요.";
+        }
+        finally
+        {
+            if (!_updatesClosed) { CheckUpdateButton.Content = "최신 업데이트 확인"; CheckUpdateButton.IsEnabled = true; }
+        }
+    }
 
     private void ShowGuide_Click(object sender, RoutedEventArgs e) => EditorPanel.SelectedItem = GuideTab;
     private void GuideSheets_Click(object sender, RoutedEventArgs e) => OpenBrowser(AppsScriptConnection.SheetsHome);

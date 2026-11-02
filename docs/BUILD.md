@@ -5,7 +5,7 @@
 3. 일반 빌드로 실행합니다. 생성되는 프로그램 이름은 **MyToDo2**입니다.
 4. 자체 포함 배포는 앱 프로젝트 **우클릭 → 게시 → Standalone-win-x64** 프로필을 선택합니다.
 
-프로필은 Release / win-x64 / 자체 포함 / 단일 실행 파일 / 트리밍 끄기입니다. 출력 폴더는 `dist/MyToDo2-2.0.1-win-x64/`, 실행 파일은 `MyToDo2.exe`입니다.
+프로필은 Release / win-x64 / 자체 포함 / 단일 실행 파일 / 트리밍 끄기입니다. 출력 폴더는 `dist/MyToDo2-2.0.2-win-x64/`, 실행 파일은 `MyToDo2.exe`입니다.
 
 ## ZIP과 SHA-256 한 번에 만들기
 
@@ -13,8 +13,8 @@
 
 성공하면 `dist/`에 다음 파일이 함께 생성됩니다.
 
-- `MyToDo2-2.0.1-win-x64.zip`: 자체 포함 실행 파일, 사용 안내와 라이선스
-- `MyToDo2-2.0.1-win-x64.zip.sha256`: 위 ZIP의 SHA-256 해시와 파일명
+- `MyToDo2-2.0.2-win-x64.zip`: 자체 포함 실행 파일, 사용 안내와 라이선스
+- `MyToDo2-2.0.2-win-x64.zip.sha256`: 위 ZIP의 SHA-256 해시와 파일명
 
 버전은 `Directory.Build.props`에서 읽습니다. 빌드할 때마다 새 임시 폴더를 사용하며, 소스·개인 개발 자료·사용자 데이터·PDB는 실행용 ZIP에 포함하지 않습니다. 게시가 실패하면 ZIP과 체크섬을 갱신하지 않고 오류를 표시합니다. 터미널·자동화에서 마지막 일시 정지를 생략하려면 `./build_release.bat --no-pause`를 사용합니다.
 
@@ -30,12 +30,12 @@
 
 ## GitHub 릴리즈
 
-저장소는 `lottoria-dev/MyToDoWidget`, 태그는 **2.0.1**입니다. 위에서 생성한 **ZIP과 `.sha256` 두 파일**을 같은 태그의 Releases에 첨부합니다. 이 소스 묶음에는 실행 파일을 포함하지 않습니다.
+저장소는 `lottoria-dev/MyToDoWidget`, 태그는 **2.0.2**입니다. 위에서 생성한 **ZIP과 `.sha256` 두 파일**을 같은 태그의 Releases에 첨부합니다. 이 소스 묶음에는 실행 파일을 포함하지 않습니다.
 
 다운로드한 ZIP을 확인하려면 PowerShell에서 다음을 실행해 `True`인지 확인합니다.
 
 ```powershell
-$zip = 'MyToDo2-2.0.1-win-x64.zip'
+$zip = 'MyToDo2-2.0.2-win-x64.zip'
 $expected = ((Get-Content -LiteralPath ($zip + '.sha256') -Raw).Trim() -split '\s+')[0]
 (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash -eq $expected
 ```

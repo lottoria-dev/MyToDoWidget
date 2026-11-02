@@ -331,8 +331,8 @@
   <Grid x:Name="ResizeHandles">
    <Thumb Tag="W" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Left" Width="6" Margin="0,12" Cursor="SizeWE"/>
    <Thumb Tag="E" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Right" Width="6" Margin="0,12" Cursor="SizeWE"/>
-   <Thumb Tag="E" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="14" Height="14" Cursor="SizeWE" ToolTip="끌어서 가로 폭 조절 · 높이는 내용에 맞춰 자동 조절">
-    <Thumb.Template><ControlTemplate TargetType="Thumb"><Grid Background="Transparent"><Path Data="M4,11 L11,4 M8,11 L11,8" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1"/></Grid></ControlTemplate></Thumb.Template>
+   <Thumb Tag="SE" Style="{StaticResource ResizeHandle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="20" Height="20" Cursor="SizeNWSE" ToolTip="대각선으로 끌어서 크기 조절" AutomationProperties.Name="위젯 대각선 크기 조절">
+    <Thumb.Template><ControlTemplate TargetType="Thumb"><Grid Background="Transparent"><Path Data="M6,16 L16,6 M11,16 L16,11" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Margin="0,0,2,2"/></Grid></ControlTemplate></Thumb.Template>
    </Thumb>
   </Grid>
  </Grid>

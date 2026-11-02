@@ -43,30 +43,48 @@ public static class DesktopAppearance
         var screen = Forms.Screen.FromHandle(handle);
         var area = screen.WorkingArea;
         return new DesktopPosition(screen.DeviceName, area.Width, area.Height,
-            rect.Left - area.Left, rect.Top - area.Top);
+            rect.Left - area.Left, rect.Top - area.Top) { MonitorId = MonitorIdentity(screen.DeviceName) };
     }
 
-    public static string DisplayLayout() => string.Join(";", Forms.Screen.AllScreens
-        .OrderBy(s => s.DeviceName).Select(s => $"{s.DeviceName}:{s.WorkingArea}"));
+    private static DesktopMonitor[] Monitors() => Forms.Screen.AllScreens.Select(s =>
+        new DesktopMonitor(s.DeviceName, MonitorIdentity(s.DeviceName),
+            s.WorkingArea.Left, s.WorkingArea.Top, s.WorkingArea.Width, s.WorkingArea.Height)).ToArray();
+
+    public static string DisplayLayout() => string.Join(";", Monitors()
+        .OrderBy(s => s.DisplayName).Select(s => $"{s.DisplayName}:{s.MonitorId}:{s.Left},{s.Top},{s.Width},{s.Height}"));
 
     public static bool RestorePosition(Window window, DesktopPosition preferred)
     {
         if (!preferred.IsValid) return false;
-        var screen = Forms.Screen.AllScreens.FirstOrDefault(s => s.DeviceName == preferred.DisplayName);
+        var screen = DesktopPlacement.FindMonitor(preferred, Monitors());
         if (screen is null) return false; // An absent monitor must not replace the saved preference.
         var handle = new WindowInteropHelper(window).Handle;
         if (handle == IntPtr.Zero || !GetWindowRect(handle, out var rect)) return false;
-        var area = screen.WorkingArea;
         // Moving onto another DPI monitor can change native size. Recheck after the move.
         for (int pass = 0; pass < 2; pass++)
         {
-            var point = preferred.Resolve(area.Left, area.Top, area.Width, area.Height,
+            var point = preferred.Resolve(screen.Left, screen.Top, screen.Width, screen.Height,
                 rect.Right - rect.Left, rect.Bottom - rect.Top);
             if (rect.Left == point.X && rect.Top == point.Y) return true;
             if (!SetWindowPos(handle, IntPtr.Zero, point.X, point.Y, 0, 0, 0x0015)) return false;
             if (!GetWindowRect(handle, out rect)) return false;
         }
         return true;
+    }
+
+    private static string? MonitorIdentity(string displayName)
+    {
+        var identities = new List<string>();
+        for (uint i = 0; i < 32; i++)
+        {
+            var device = new DisplayDevice { Size = Marshal.SizeOf<DisplayDevice>(),
+                DeviceName = "", DeviceString = "", DeviceId = "", DeviceKey = "" };
+            if (!EnumDisplayDevices(displayName, i, ref device, 1)) break; // EDD_GET_DEVICE_INTERFACE_NAME
+            if ((device.StateFlags & 1) != 0 && !string.IsNullOrWhiteSpace(device.DeviceId))
+                identities.Add(device.DeviceId);
+        }
+        // Mirrored/ambiguous devices keep legacy matching rather than guessing an identity.
+        return identities.Count == 1 ? identities[0] : null;
     }
 
     public static void PlaceSettingsBeside(Window settings, Window owner)
@@ -106,6 +124,19 @@ public static class DesktopAppearance
     private struct Rect { public int Left, Top, Right, Bottom; }
     [StructLayout(LayoutKind.Sequential)]
     private struct ScreenPoint { public int X, Y; }
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct DisplayDevice
+    {
+        public int Size;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string DeviceName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceString;
+        public uint StateFlags;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceId;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceKey;
+    }
+    [DllImport("user32.dll", EntryPoint = "EnumDisplayDevicesW", CharSet = CharSet.Unicode, ExactSpelling = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool EnumDisplayDevices(string device, uint index, ref DisplayDevice displayDevice, uint flags);
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool GetCursorPos(out ScreenPoint point);

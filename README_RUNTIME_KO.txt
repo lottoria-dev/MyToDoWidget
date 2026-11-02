@@ -1,4 +1,4 @@
-MyToDo2 2.0.1 / MathTime
+MyToDo2 2.0.2 / MathTime
 
 빠른 시작
 1. 배포 ZIP 전체를 풀고 MyToDo2.exe를 실행합니다.
@@ -26,3 +26,9 @@ MyToDo2 2.0.1 / MathTime
 소스·문의: https://github.com/lottoria-dev/MyToDoWidget
 이메일: mathtime.ai@gmail.com
 라이선스: LICENSE.md / THIRD_PARTY_NOTICES.md / licenses 폴더
+
+2.0.2 개선
+• 업데이트 후 원하는 모니터 위치로 위젯을 한 번 옮기면 해당 모니터를 함께 기억합니다.
+• 오른쪽 아래 대각선 핸들로 크기를 조절합니다. 높이는 내용에 맞춰 조절됩니다.
+• 최신 버전 확인: 설정 → 정보 → 최신 업데이트 확인
+• 기존 메모·연결정보는 유지합니다. 시트 스크립트 재배포는 필요하지 않습니다.

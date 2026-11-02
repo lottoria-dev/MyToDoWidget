@@ -686,6 +686,8 @@ public partial class MainWindow : Window
         if (_state.LockPosition || _state.IsRolledUp || sender is not Thumb { Tag: string edge }) return;
         Point pointer = PointToScreen(Mouse.GetPosition(this));
         double dx = (pointer.X - _resizePointer.X) / _resizeDpi.DpiScaleX;
+        double dy = (pointer.Y - _resizePointer.Y) / _resizeDpi.DpiScaleY;
+        dx = WidgetResize.WidthDelta(_resizeBounds.Width, _resizeBounds.Height, dx, dy, edge == "SE");
         if (edge.Contains('W'))
         {
             Width = Math.Clamp(_resizeBounds.Width - dx, MinWidth, MaxWidth);
