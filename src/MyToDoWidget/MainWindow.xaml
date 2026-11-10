@@ -285,20 +285,13 @@
            <Button Style="{StaticResource BubbleAction}" ToolTip="위젯에서 숨기기 · 시트에는 보관" Click="BubbleDelete_Click" AutomationProperties.Name="항목 삭제">
             <Path Data="M2,4 L14,4 M6,4 L6,2 L10,2 L10,4 M4,4 L5,14 L11,14 L12,4 M7,6 L7,12 M9,6 L9,12" Style="{StaticResource CardIcon}"/>
            </Button>
-           <Button Style="{StaticResource BubbleAction}" ToolTip="{Binding ExpandHint}" Click="BubbleExpand_Click" AutomationProperties.Name="보기 단계 변경: 1줄, 2줄, 전체" IsEnabled="{Binding CanExpand}">
+           <Button Style="{StaticResource BubbleAction}" ToolTip="{Binding ExpandHint}" Click="BubbleExpand_Click" AutomationProperties.Name="{Binding ExpandHint}">
             <Path Data="{Binding ExpandPath}" Style="{StaticResource CardIcon}" Height="8"/>
            </Button>
           </StackPanel>
          </Grid>
-         <controls:TaggedTextBlock ContentText="{Binding BodyContent}" TagForeground="{DynamicResource TagTextBrush}" Visibility="{Binding ShowPreview, Converter={StaticResource BoolVisibility}}" Style="{StaticResource MemoText}"
-          TextTrimming="CharacterEllipsis" LineStackingStrategy="BlockLineHeight"
-          LineHeight="{Binding FontSize, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource MemoLineHeight}}">
-          <controls:TaggedTextBlock.MaxHeight><MultiBinding Converter="{StaticResource PreviewHeight}">
-           <Binding Path="FontSize" RelativeSource="{RelativeSource AncestorType=ListBox}"/><Binding Path="TextLines"/>
-          </MultiBinding></controls:TaggedTextBlock.MaxHeight>
-         </controls:TaggedTextBlock>
          <StackPanel Visibility="{Binding ShowDetails, Converter={StaticResource BoolVisibility}}">
-          <controls:TaggedTextBlock ContentText="{Binding BodyContent}" TagForeground="{DynamicResource TagTextBrush}" Style="{StaticResource MemoText}"/>
+          <controls:TaggedTextBlock ContentText="{Binding BodyContent}" TagForeground="{DynamicResource TagTextBrush}" Style="{StaticResource MemoText}" Visibility="{Binding HasBodyContent, Converter={StaticResource BoolVisibility}}"/>
           <TextBlock Text="{Binding ReminderLine}" Style="{StaticResource SmallText}" Margin="0,4,0,0" Visibility="{Binding HasReminder, Converter={StaticResource BoolVisibility}}"/>
           <TextBlock Text="{Binding Source, StringFormat='@{0}'}" Style="{StaticResource SmallText}" Margin="0,4,0,0" Visibility="{Binding HasSource, Converter={StaticResource BoolVisibility}}"/>
           <Button Content="링크 열기 ↗" Style="{StaticResource SmallAction}" HorizontalAlignment="Left" Margin="0,4,0,0" Click="OriginalLink_Click" Visibility="{Binding HasLink, Converter={StaticResource BoolVisibility}}"/>

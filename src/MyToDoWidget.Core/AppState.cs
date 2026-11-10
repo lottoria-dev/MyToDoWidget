@@ -15,7 +15,7 @@ public sealed class AppState
     [JsonIgnore] public int PendingCount => Outbox.Count + OrderOutbox.Count;
     public DateTimeOffset? LastSynced { get; set; }
     public MemoKind ActiveTab { get; set; }
-    public int PreviewLines { get; set; } = 2;
+    public int PreviewLines { get; set; } = MemoView.Collapsed;
     public bool ShowCompleted { get; set; } = true;
     public string SearchText { get; set; } = "";
     public Dictionary<string, int> ItemViewLevels { get; set; } = [];
@@ -121,12 +121,12 @@ public sealed class AppState
         if (!Enum.IsDefined(NoteApp)) NoteApp = NoteApp.GoogleKeep;
         Items ??= []; Outbox ??= []; OrderOutbox ??= [];
         ItemViewLevels ??= [];
-        ItemViewLevels = ItemViewLevels.Where(p => MemoItem.IsId(p.Key)).ToDictionary(p => p.Key, p => Math.Clamp(p.Value, 1, 3));
+        ItemViewLevels = ItemViewLevels.Where(p => MemoItem.IsId(p.Key)).ToDictionary(p => p.Key, p => MemoView.Normalize(p.Value));
         ItemOrders ??= [];
         ItemOrders = ItemOrders.Where(p => Enum.IsDefined(p.Key) && p.Value is not null)
             .ToDictionary(p => p.Key, p => p.Value.Where(MemoItem.IsId).Distinct(StringComparer.Ordinal).ToList());
         ScrollOffsets ??= []; DeliveredReminders ??= [];
-        PreviewLines = Math.Clamp(PreviewLines, 1, 3);
+        PreviewLines = MemoView.Normalize(PreviewLines);
         SyncIntervalSeconds = SyncPolicy.NormalizeInterval(SyncIntervalSeconds);
         if (!Enum.IsDefined(ActiveTab)) ActiveTab = MemoKind.Memo;
         SearchText ??= "";

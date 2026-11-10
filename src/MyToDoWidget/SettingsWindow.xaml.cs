@@ -60,7 +60,7 @@ public partial class SettingsWindow : Window
         RenderSetupGuide();
         ConnectionStatus.Text = _hasConnection ? "시트 연결됨 · 코드는 등록 여부만 표시" : "처음 연결 · 아래 네 단계만 진행하세요";
         RemoveButton.IsEnabled = _hasConnection;
-        PreviewLinesCombo.SelectedValue = state.PreviewLines.ToString();
+        PreviewLinesCombo.SelectedValue = MemoView.Normalize(state.PreviewLines).ToString();
         SyncIntervalCombo.ItemsSource = SyncPolicy.PresetSeconds.Select(v => new Choice<int>(v, v == 0 ? "정기 동기화 수동" : v == SyncPolicy.DefaultIntervalSeconds ? "30분 (기본·권장)" : $"{v / 60}분")).ToList();
         SyncIntervalCombo.SelectedValue = SyncPolicy.NormalizeInterval(state.SyncIntervalSeconds);
         NotificationsCheck.IsChecked = state.NotificationsEnabled;
@@ -621,7 +621,7 @@ public partial class SettingsWindow : Window
         var request = new SettingsRequest(address, key, _remove, ReadAppearance(),
             TopmostCheck.IsChecked == true, LockCheck.IsChecked == true,
             StartWithWindowsCheck.IsEnabled ? StartWithWindowsCheck.IsChecked == true : null,
-            noteApp, int.TryParse(PreviewLinesCombo.SelectedValue as string, out int level) ? Math.Clamp(level, 1, 3) : 2,
+            noteApp, int.TryParse(PreviewLinesCombo.SelectedValue as string, out int level) ? MemoView.Normalize(level) : MemoView.Collapsed,
             SyncIntervalCombo.SelectedValue is int interval ? interval : SyncPolicy.DefaultIntervalSeconds, NotificationsCheck.IsChecked == true, expectedDataset);
         _saving = true;
         EditorPanel.IsEnabled = SaveButton.IsEnabled = CancelButton.IsEnabled = false;

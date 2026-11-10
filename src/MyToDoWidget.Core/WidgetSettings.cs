@@ -31,7 +31,7 @@ public sealed class WidgetSettings
     public bool GlassEffect { get; set; } = true;
     public bool RefreshOnStart { get; set; } = true;
     public NoteApp NoteApp { get; set; } = NoteApp.GoogleKeep;
-    public int PreviewLines { get; set; } = 2;
+    public int PreviewLines { get; set; } = MemoView.Collapsed;
     public bool ShowCompleted { get; set; } = true;
     public bool NotificationsEnabled { get; set; } = true;
     public int SyncIntervalSeconds { get; set; } = SyncPolicy.DefaultIntervalSeconds;

@@ -1,10 +1,10 @@
-/* MyToDo2 2.0.2 — MathTime
+/* MyToDo2 2.0.3 — MathTime
  * Deploy: execute as the owner; allow requests without Google sign-in.
  * Keep the spreadsheet restricted. Each request is authenticated with a long key.
  * Only the configured spreadsheet is opened. No external service or token relay.
  */
 var MYTODO_PROTOCOL = 3;
-var MYTODO_VERSION = '2.0.2';
+var MYTODO_VERSION = '2.0.3';
 var RECORDS = 'MyToDo';
 var OPERATIONS = '_MyToDoOperations';
 var INFO = '_MyToDoInfo';
